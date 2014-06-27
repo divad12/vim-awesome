@@ -403,7 +403,7 @@ def scrape_vim_scripts_repos(num):
 # TODO(david): It would be good to add "vim", "settings", and "config", but
 #     there are too many false positives that need to be filtered out.
 _DOTFILE_REPO_NAMES = ['vimrc', 'vimfile', 'vim-file', 'vimconf',
-        'vim-conf', 'dotvim', 'vim-setting', 'myvim', 'dotfile',
+        'vim-conf', 'vim-config', 'dotvim', 'vim-setting', 'myvim', 'dotfile',
         'config-files']
 
 _VIMRC_FILENAMES = ['vimrc', 'bundle', 'vundle.vim', 'vundles.vim',
