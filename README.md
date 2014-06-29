@@ -42,8 +42,8 @@ repos on GitHub, it is still a useful source of relative usage data.
 1. Install Node dependencies.
 
   ```sh
-  $ npm install -g webpack
-  $ npm install
+  $ sudo npm install -g webpack
+  $ sudo npm install
   ```
 
 1. Start a local server serving port 5001 by invoking, in the project root
