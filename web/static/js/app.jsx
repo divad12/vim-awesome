@@ -944,11 +944,23 @@ var Markdown = React.createClass({
 var Plaintext = React.createClass({
   render: function() {
     // TODO(david): Linkify <a> tags
-    // TODO(david): Linkify "vimscript #2136" references (e.g. surround-vim'
-    //     vim.org long description)
-    return <div className={"plain " + (this.props.className || '')}>
-      {this.props.children}
-    </div>;
+
+    return <div className={"plain " + (this.props.className || '')}
+      dangerouslySetInnerHTML={{__html: this.linkifyVimScriptReference()}}
+    />;
+  },
+
+  // linkify plugins references by their IDs
+  linkifyVimScriptReference: function() {
+    var linked = this.props.children;
+    var references = linked.match(/vimscript #\d*/g) || [];
+
+    for (var i = 0; i < references.length; i++) {
+      linked = linked.replace(references[i], "<a href=\"http://www.vim.org/scripts/script.php?script_id=" +
+        references[i].split("#")[1] + "\" target=\"_blank\">" + references[i] + "</a>");
+    }
+
+    return linked;
   }
 });
 
