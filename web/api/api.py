@@ -215,13 +215,36 @@ def update_plugin_category(slug, category):
 def submit_plugin():
     plugin_data = flask.request.form.to_dict()
     plugin_data['tags'] = json.loads(plugin_data['tags'])
-    db.submitted_plugins.insert(plugin_data)
-
-    # Notify HipChat of this submission.
-    # TODO(david): Also have email notifications.
-    if _HIPCHAT_TOKEN and _HIPCHAT_ROOM_ID:
+    plugin_check = db.submitted_plugins.check_plugin(plugin_data)
+    if plugin_check>0:
+        return api_util.jsonify({
+            'status': False,
+            'message': 'This plugin is exists.'
+        })
+    else:
+        db.submitted_plugins.insert(plugin_data)
         message = "Someone just submitted a plugin!\n%s" % (
                json.dumps(plugin_data, indent=4))  # JSON for pretty-printing
+        notify(plugin_data, message)
+        return api_util.jsonify({
+            'status': True,
+            'redirect': '/thanks-for-submitting'
+        })
+
+
+@cache.cached(timeout=60 * 60 * 26, key_prefix='search_index')
+def get_search_index_cached():
+    return db.plugins.get_search_index()
+
+
+@cache.cached(timeout=60 * 60 * 27, key_prefix='all_categories')
+def get_all_categories_cached():
+    return db.categories.get_all()
+
+def notify(plugin_data,message):
+     # Notify HipChat of this submission.
+    # TODO(david): Also have email notifications.
+    if _HIPCHAT_TOKEN and _HIPCHAT_ROOM_ID:
         payload = {
            'auth_token': _HIPCHAT_TOKEN,
            'notify': 0,
@@ -237,15 +260,3 @@ def submit_plugin():
                     data=payload, timeout=10)
         except Exception:
             logging.exception('Failed to notify HipChat of plugin submisson')
-
-    return flask.redirect('/thanks-for-submitting')
-
-
-@cache.cached(timeout=60 * 60 * 26, key_prefix='search_index')
-def get_search_index_cached():
-    return db.plugins.get_search_index()
-
-
-@cache.cached(timeout=60 * 60 * 27, key_prefix='all_categories')
-def get_all_categories_cached():
-    return db.categories.get_all()

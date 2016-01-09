@@ -20,3 +20,10 @@ def insert(plugin_data):
         plugin_data['submitted_at'] = int(time.time())
 
     r.table('submitted_plugins').insert(plugin_data).run(r_conn())
+
+
+def check_plugin(plugin_data):
+    r.connect().use("vim_awesome")
+    check = r.table('submitted_plugins').filter(r.row['vimorg-link'] == plugin_data['vimorg-link']).run(r_conn())
+    return len(list(check))
+

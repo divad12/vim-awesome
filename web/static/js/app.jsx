@@ -36,17 +36,17 @@ var fetchAllCategories = require("./fetchAllCategories.js");
 // TODO(david): We might want to split up this file more.
 
 var D_KEYCODE = 'D'.charCodeAt(0),
-    G_KEYCODE = 'G'.charCodeAt(0),
-    H_KEYCODE = 'H'.charCodeAt(0),
-    J_KEYCODE = 'J'.charCodeAt(0),
-    K_KEYCODE = 'K'.charCodeAt(0),
-    L_KEYCODE = 'L'.charCodeAt(0),
-    N_KEYCODE = 'N'.charCodeAt(0),
-    O_KEYCODE = 'O'.charCodeAt(0),
-    P_KEYCODE = 'P'.charCodeAt(0),
-    U_KEYCODE = 'U'.charCodeAt(0),
-    ENTER_KEYCODE = 13,
-    ESCAPE_KEYCODE = 27;
+  G_KEYCODE = 'G'.charCodeAt(0),
+  H_KEYCODE = 'H'.charCodeAt(0),
+  J_KEYCODE = 'J'.charCodeAt(0),
+  K_KEYCODE = 'K'.charCodeAt(0),
+  L_KEYCODE = 'L'.charCodeAt(0),
+  N_KEYCODE = 'N'.charCodeAt(0),
+  O_KEYCODE = 'O'.charCodeAt(0),
+  P_KEYCODE = 'P'.charCodeAt(0),
+  U_KEYCODE = 'U'.charCodeAt(0),
+  ENTER_KEYCODE = 13,
+  ESCAPE_KEYCODE = 27;
 
 // Renderer used to change relative image URL to absolute in Markdown
 var markedRenderer = new marked.Renderer();
@@ -54,19 +54,19 @@ var markedRenderer = new marked.Renderer();
 // A cache of all tag IDs and their counts.
 var allTags = {};
 
-var clamp = function(num, min, max) {
+var clamp = function (num, min, max) {
   return Math.min(Math.max(num, min), max);
 };
 
-var capitalizeFirstLetter = function(str) {
+var capitalizeFirstLetter = function (str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-var startsWith = function(str, startStr) {
+var startsWith = function (str, startStr) {
   return str.indexOf(startStr) === 0;
 };
 
-var endsWith = function(str, endStr) {
+var endsWith = function (str, endStr) {
   return str.indexOf(endStr, str.length - endStr.length) !== -1;
 };
 
@@ -76,7 +76,7 @@ var endsWith = function(str, endStr) {
  * @param {number=} context An optional amount of context (minimum distance
  * from top or bottom of screen) to keep in pixels. Defaults to 0.
  */
-var scrollToNode = function(domNode, context) {
+var scrollToNode = function (domNode, context) {
   context = context || 0;
   var windowTop = $(window).scrollTop();
   var windowHeight = $(window).height();
@@ -92,14 +92,14 @@ var scrollToNode = function(domNode, context) {
 };
 
 var Sidebar = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       categories: []
     };
   },
 
-  componentDidMount: function() {
-    fetchAllCategories(function(categories) {
+  componentDidMount: function () {
+    fetchAllCategories(function (categories) {
       if (this.isMounted()) {
         this.setState({categories: categories});
       }
@@ -110,19 +110,19 @@ var Sidebar = React.createClass({
     $(this.refs.categories.getDOMNode()).on('show', this.onCategoryShow);
   },
 
-  onCategoryShow: function(e) {
+  onCategoryShow: function (e) {
     var category = $(e.target).data('category');
     transitionTo("plugin-list", null, {"q": "cat:" + category});
   },
 
-  render: function() {
+  render: function () {
     // This block of code looks for tags in the query so we can highlight them
     // in the sidebar
     var selectedTagId = null;
     var tags = [];
     if (this.props.query && this.props.query.q) {
       var queries = this.props.query.q.split(" ");
-      _.each(queries, function(query) {
+      _.each(queries, function (query) {
         if (query && startsWith(query, "tag:")) {
           var queryTag = query.split(":")[1];
           tags.push(queryTag);
@@ -131,10 +131,12 @@ var Sidebar = React.createClass({
     }
 
     var categoryElements = _.chain(this.state.categories)
-      .reject(function(category) { return category.id === "uncategorized"; })
-      .map(function(category) {
+      .reject(function (category) {
+        return category.id === "uncategorized";
+      })
+      .map(function (category) {
         var tagsClass = category.id + "-tags";
-        var tagElements = _.map(category.tags, function(tag) {
+        var tagElements = _.map(category.tags, function (tag) {
           // TODO(Jeff): should check out classSet, in the experimental Add-ons
           var classString = "tag-link";
           if (_.contains(tags, tag.id)) {
@@ -143,19 +145,19 @@ var Sidebar = React.createClass({
 
           return <li key={tag.id}>
             <a href={"/?q=tag:" + encodeURIComponent(tag.id)}
-                className={classString}>
+               className={classString}>
               <span className="tag-id">{tag.id}</span>
               {tag.count > 1 &&
-                <span className="tag-count"> × {tag.count}</span>
+              <span className="tag-count"> × {tag.count}</span>
               }
             </a>
           </li>;
         });
 
         return <li className={"accordion-group category " + category.id}
-            key={category.id}>
+                   key={category.id}>
           <a data-toggle="collapse" data-target={"." + tagsClass}
-              data-parent=".categories" className="category-link">
+             data-parent=".categories" className="category-link">
             <i className={category.icon}></i>{category.name}
           </a>
           <div className={"collapse " + tagsClass} data-category={category.id}>
@@ -188,19 +190,19 @@ var Sidebar = React.createClass({
 });
 
 var SearchBox = React.createClass({
-  componentDidMount: function() {
+  componentDidMount: function () {
     window.addEventListener("keyup", this.windowKeyUp, false);
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount: function () {
     window.removeEventListener("keyup", this.windowKeyUp, false);
   },
 
-  windowKeyUp: function(e) {
+  windowKeyUp: function (e) {
     var tag = e.target.tagName;
     var key = e.keyCode;
     if (tag !== "INPUT" && tag !== "TEXTAREA" &&
-        key === 191 /* forward slash */) {
+      key === 191 /* forward slash */) {
       var inputElement = this.refs.input.getDOMNode();
       inputElement.focus();
       inputElement.select();
@@ -208,7 +210,7 @@ var SearchBox = React.createClass({
     }
   },
 
-  handleKeyUp: function(e) {
+  handleKeyUp: function (e) {
     var key = e.nativeEvent.keyCode;
     if (key === ESCAPE_KEYCODE || key === ENTER_KEYCODE) {
       this.refs.input.getDOMNode().blur();
@@ -216,16 +218,16 @@ var SearchBox = React.createClass({
     }
   },
 
-  onChange: function(e) {
+  onChange: function (e) {
     this.props.onChange(this.refs.input.getDOMNode().value);
   },
 
-  render: function() {
+  render: function () {
     return <div className="search-container">
       <i className="icon-search"></i>
       <input type="text" className="search" placeholder="Search" ref="input"
-          value={this.props.searchQuery} onChange={this.onChange}
-          onKeyUp={this.handleKeyUp} />
+             value={this.props.searchQuery} onChange={this.onChange}
+             onKeyUp={this.handleKeyUp}/>
     </div>;
   }
 });
@@ -236,15 +238,15 @@ var Pager = React.createClass({
     totalPages: React.PropTypes.number.isRequired
   },
 
-  componentDidMount: function() {
+  componentDidMount: function () {
     window.addEventListener("keyup", this.onWindowKeyDown, false);
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount: function () {
     window.removeEventListener("keyup", this.onWindowKeyDown, false);
   },
 
-  onWindowKeyDown: function(e) {
+  onWindowKeyDown: function (e) {
     var tag = e.target.tagName;
     var key = e.keyCode;
 
@@ -257,30 +259,30 @@ var Pager = React.createClass({
     }
   },
 
-  goToPage: function(page) {
+  goToPage: function (page) {
     var newPage = clamp(page, 1, this.props.totalPages);
     this.props.onPageChange(newPage);
   },
 
-  goToPrevPage: function() {
+  goToPrevPage: function () {
     this.goToPage(this.props.currentPage - 1);
   },
 
-  goToNextPage: function() {
+  goToNextPage: function () {
     this.goToPage(this.props.currentPage + 1);
   },
 
-  onPrevClick: function(e) {
+  onPrevClick: function (e) {
     e.preventDefault();
     this.goToPrevPage();
   },
 
-  onNextClick: function(e) {
+  onNextClick: function (e) {
     e.preventDefault();
     this.goToNextPage();
   },
 
-  render: function() {
+  render: function () {
     var currentPage = this.props.currentPage;
     var totalPages = this.props.totalPages;
 
@@ -293,24 +295,24 @@ var Pager = React.createClass({
     return <div className="pagination">
       <ul>
         {currentPage > 1 &&
-          <li>
-            <a className="pager-button prev-page-button" href="#"
-                onClick={this.onPrevClick}>
-              {"\u2190"}<code>P</code>
-            </a>
-          </li>
+        <li>
+          <a className="pager-button prev-page-button" href="#"
+             onClick={this.onPrevClick}>
+            {"\u2190"}<code>P</code>
+          </a>
+        </li>
         }
         <li>
           <a className="page-number">Page {currentPage} of {totalPages}</a>
         </li>
         {currentPage < totalPages &&
-          <li>
-            <a className="pager-button next-page-button" href="#"
-                onClick={this.onNextClick}>
-              <code>N</code> Next page
-              <span className="right-arrow">{"\u2192"}</span>
-            </a>
-          </li>
+        <li>
+          <a className="pager-button next-page-button" href="#"
+             onClick={this.onNextClick}>
+            <code>N</code> Next page
+            <span className="right-arrow">{"\u2192"}</span>
+          </a>
+        </li>
         }
       </ul>
     </div>;
@@ -319,7 +321,7 @@ var Pager = React.createClass({
 
 
 var PluginList = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       plugins: [],
       selectedIndex: -1,
@@ -328,12 +330,12 @@ var PluginList = React.createClass({
     };
   },
 
-  componentDidMount: function() {
+  componentDidMount: function () {
     this.fetchPlugins(this.props);
     window.addEventListener("keydown", this.onWindowKeyDown, false);
   },
 
-  componentWillReceiveProps: function(nextProps) {
+  componentWillReceiveProps: function (nextProps) {
     if (nextProps.searchQuery !== this.props.searchQuery) {
       this.setState({isLoading: true});
       this.fetchPluginsDebounced(nextProps);
@@ -343,29 +345,29 @@ var PluginList = React.createClass({
     }
   },
 
-  shouldComponentUpdate: function(nextProps, nextState) {
+  shouldComponentUpdate: function (nextProps, nextState) {
     // Only re-render when new plugins have been fetched.
     return !_.isEqual(nextState, this.state);
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount: function () {
     clearTimeout(this.reenableHoverTimeout);
     window.removeEventListener("keydown", this.onWindowKeyDown, false);
   },
 
-  select: function() {
+  select: function () {
     if (this.state.selectedIndex === -1) {
       this.setState({selectedIndex: 0});
     }
   },
 
-  unselect: function() {
+  unselect: function () {
     if (this.state.selectedIndex !== -1) {
       this.setState({selectedIndex: -1});
     }
   },
 
-  onWindowKeyDown: function(e) {
+  onWindowKeyDown: function (e) {
     // TODO(david): Duplicated code from SearchBox
     var tag = e.target.tagName;
     var key = e.keyCode;
@@ -386,7 +388,7 @@ var PluginList = React.createClass({
 
         // Re-enable hover after a delay
         clearTimeout(this.reenableHoverTimeout);
-        this.reenableHoverTimeout = setTimeout(function() {
+        this.reenableHoverTimeout = setTimeout(function () {
           this.setState({hoverDisabled: false});
         }.bind(this), 400);
 
@@ -395,14 +397,14 @@ var PluginList = React.createClass({
           scrollToNode(this.refs.navFocus.getDOMNode(), 105 /* context */);
         }
       } else if ((key === ENTER_KEYCODE || key === O_KEYCODE) &&
-          this.refs && this.refs.navFocus) {
+        this.refs && this.refs.navFocus) {
         e.preventDefault();
         this.refs.navFocus.goToDetailsPage();
       }
     }
   },
 
-  onPluginMouseEnter: function(index, e) {
+  onPluginMouseEnter: function (index, e) {
     // TODO(david): This is not as quick/snappy as CSS :hover ...
     if (this.state.hoverDisabled) {
       return;
@@ -410,7 +412,7 @@ var PluginList = React.createClass({
     this.setState({selectedIndex: index});
   },
 
-  fetchPlugins: function(params) {
+  fetchPlugins: function (params) {
     this.setState({isLoading: true});
 
     // Abort any pending XHRs so that we don't update from a stale query.
@@ -429,7 +431,7 @@ var PluginList = React.createClass({
     });
   },
 
-  onPluginsFetched: function(data) {
+  onPluginsFetched: function (data) {
     this.setState({
       plugins: data.plugins,
       totalPages: data.total_pages,
@@ -446,27 +448,27 @@ var PluginList = React.createClass({
     }
   },
 
-  fetchPluginsDebounced: _.debounce(function() {
+  fetchPluginsDebounced: _.debounce(function () {
     this.fetchPlugins.apply(this, arguments);
   }, 300),
 
-  fetchPluginsThrottled: _.throttle(function() {
+  fetchPluginsThrottled: _.throttle(function () {
     this.fetchPlugins.apply(this, arguments);
   }, 500),
 
-  render: function() {
+  render: function () {
     // TODO(david): We should not update the page number and other
     // search-params UI until new data has arrived to keep things consistent.
 
     var plugins = _.chain(this.state.plugins)
-      .map(function(plugin, index) {
+      .map(function (plugin, index) {
         var hasNavFocus = (index === this.state.selectedIndex);
         return <Plugin
-            ref={hasNavFocus ? "navFocus" : ""}
-            key={plugin.slug}
-            hasNavFocus={hasNavFocus}
-            plugin={plugin}
-            onMouseEnter={this.onPluginMouseEnter.bind(this, index)} />;
+          ref={hasNavFocus ? "navFocus" : ""}
+          key={plugin.slug}
+          hasNavFocus={hasNavFocus}
+          plugin={plugin}
+          onMouseEnter={this.onPluginMouseEnter.bind(this, index)}/>;
       }, this)
       .value();
 
@@ -482,21 +484,21 @@ var PluginList = React.createClass({
       {this.state.isLoading && <Spinner />}
       <div className="browsing-plugins">
         {currentPage > 1 && resultsPerPage ?
-            'Plugins ' + firstPlugin + '-' + lastPlugin + ' of ' + totalResults
-            : totalResults + ' plugins'}
+        'Plugins ' + firstPlugin + '-' + lastPlugin + ' of ' + totalResults
+          : totalResults + ' plugins'}
       </div>
       <ul className="plugins">{plugins}</ul>
       <Pager currentPage={currentPage}
-          totalPages={totalPages} onPageChange={this.props.onPageChange} />
+             totalPages={totalPages} onPageChange={this.props.onPageChange}/>
     </div>;
   }
 });
 
 // Instructions for installing a plugin with Vundle.
 var VundleInstructions = React.createClass({
-  render: function() {
+  render: function () {
     var urlPath = (this.props.github_url || "").replace(
-        /^https?:\/\/github.com\//, "");
+      /^https?:\/\/github.com\//, "");
     var vundleUri = urlPath.replace(/^vim-scripts\//, "");
 
     return <div>
@@ -517,9 +519,9 @@ var VundleInstructions = React.createClass({
 // Instructions for installing a plugin with NeoBundle (a manager based on
 // Vundle).
 var NeoBundleInstructions = React.createClass({
-  render: function() {
+  render: function () {
     var urlPath = (this.props.github_url || "").replace(
-        /^https?:\/\/github.com\//, "");
+      /^https?:\/\/github.com\//, "");
     var bundleUri = urlPath.replace(/^vim-scripts\//, "");
 
     return <div>
@@ -535,9 +537,9 @@ var NeoBundleInstructions = React.createClass({
 
 // Instructions for installing a plugin with Vim-Plug.
 var VimPlugInstructions = React.createClass({
-  render: function() {
+  render: function () {
     var urlPath = (this.props.github_url || "").replace(
-        /^https?:\/\/github.com\//, "");
+      /^https?:\/\/github.com\//, "");
     var bundleUri = urlPath.replace(/^vim-scripts\//, "");
 
     return <div>
@@ -553,7 +555,7 @@ var VimPlugInstructions = React.createClass({
 
 // Instructions for installing a plugin with Pathogen.
 var PathogenInstructions = React.createClass({
-  render: function() {
+  render: function () {
     return <div>
       <p>Run the following in a terminal:</p>
       <pre>cd ~/.vim/bundle<br/>git clone {this.props.github_url}
@@ -566,12 +568,12 @@ var PathogenInstructions = React.createClass({
 
 // Help text explaining what Vundle is and linking to more details.
 var VundleTabPopover = React.createClass({
-  render: function() {
+  render: function () {
     return <div>
       Vundle is short for Vim Bundle and is a plugin manager for Vim.
       <br/><br/>See{' '}
       <a href="https://github.com/gmarik/vundle" target="_blank">
-        <i className="icon-github" /> gmarik/vundle
+        <i className="icon-github"/> gmarik/vundle
       </a>
     </div>;
   }
@@ -579,13 +581,13 @@ var VundleTabPopover = React.createClass({
 
 // Help text explaining what NeoBundle is and linking to more details.
 var NeoBundleTabPopover = React.createClass({
-  render: function() {
+  render: function () {
     return <div>
       NeoBundle is a Vim plugin manager based on Vundle but extended with more
       features.
       <br/><br/>See{' '}
       <a href="https://github.com/Shougo/neobundle.vim" target="_blank">
-        <i className="icon-github" /> Shougo/neobundle.vim
+        <i className="icon-github"/> Shougo/neobundle.vim
       </a>
     </div>;
   }
@@ -593,12 +595,12 @@ var NeoBundleTabPopover = React.createClass({
 
 // Help text explaining what Vim-Plug is and linking to more details.
 var VimPlugTabPopover = React.createClass({
-  render: function() {
+  render: function () {
     return <div>
       Vim-Plug is a Vim plugin manager similar to NeoBundle.
       <br/><br/>See{' '}
       <a href="https://github.com/junegunn/vim-plug" target="_blank">
-        <i className="icon-github" /> junegunn/vim-plug
+        <i className="icon-github"/> junegunn/vim-plug
       </a>
     </div>;
   }
@@ -606,13 +608,13 @@ var VimPlugTabPopover = React.createClass({
 
 // Help text explaining what Pathogen is and linking to more details.
 var PathogenTabPopover = React.createClass({
-  render: function() {
+  render: function () {
     return <div>
       Pathogen makes it super easy to install plugins and runtime files
       in their own private directories.
       <br/><br/>See{' '}
       <a href="https://github.com/tpope/vim-pathogen" target="_blank">
-        <i className="icon-github" /> tpope/vim-pathogen
+        <i className="icon-github"/> tpope/vim-pathogen
       </a>
     </div>;
   }
@@ -620,14 +622,14 @@ var PathogenTabPopover = React.createClass({
 
 // The installation instructions (via Vundle, etc.) widget on the details page.
 var Install = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     var tabActive = (store.enabled && store.get("installTab")) || "vundle";
     return {
       tabActive: tabActive
     };
   },
 
-  componentDidMount: function() {
+  componentDidMount: function () {
     var popovers = {
       vundleTab: <VundleTabPopover />,
       neoBundleTab: <NeoBundleTabPopover />,
@@ -636,7 +638,7 @@ var Install = React.createClass({
     };
 
     var self = this;
-    _.each(popovers, function(component, ref) {
+    _.each(popovers, function (component, ref) {
       var markup = React.renderComponentToString(component);
       var $tabElem = $(self.refs[ref].getDOMNode());
       $tabElem.popover({
@@ -650,14 +652,14 @@ var Install = React.createClass({
     });
   },
 
-  onTabClick: function(installMethod) {
+  onTabClick: function (installMethod) {
     this.setState({tabActive: installMethod});
     if (store.enabled) {
       store.set("installTab", installMethod);
     }
   },
 
-  render: function() {
+  render: function () {
     return <div className="install row-fluid">
       <div className="tabs-column">
         <h3 className="install-label">Install from</h3>
@@ -685,13 +687,13 @@ var Install = React.createClass({
       </div>
       <div className="content-column">
         {this.state.tabActive === "vundle" &&
-            <VundleInstructions github_url={this.props.github_url} />}
+        <VundleInstructions github_url={this.props.github_url}/>}
         {this.state.tabActive === "neoBundle" &&
-            <NeoBundleInstructions github_url={this.props.github_url} />}
+        <NeoBundleInstructions github_url={this.props.github_url}/>}
         {this.state.tabActive === "vimPlug" &&
-            <VimPlugInstructions github_url={this.props.github_url} />}
+        <VimPlugInstructions github_url={this.props.github_url}/>}
         {this.state.tabActive === "pathogen" &&
-            <PathogenInstructions github_url={this.props.github_url} />}
+        <PathogenInstructions github_url={this.props.github_url}/>}
       </div>
     </div>;
   }
@@ -699,14 +701,14 @@ var Install = React.createClass({
 
 // This is the category link and edit widget on the details page.
 var Category = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       categories: []
     };
   },
 
-  componentDidMount: function() {
-    fetchAllCategories(function(categories) {
+  componentDidMount: function () {
+    fetchAllCategories(function (categories) {
       if (this.isMounted()) {
         this.setState({categories: categories});
       }
@@ -714,16 +716,16 @@ var Category = React.createClass({
     this.addBootstrapTooltips();
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount: function () {
     $(this.getDOMNode()).find('[title]').tooltip('destroy');
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate: function () {
     this.addBootstrapTooltips();
   },
 
-  addBootstrapTooltips: function() {
-    _.delay(function() {
+  addBootstrapTooltips: function () {
+    _.delay(function () {
       $(this.getDOMNode()).find('[title]')
         .tooltip('destroy')
         .tooltip({
@@ -733,26 +735,28 @@ var Category = React.createClass({
     }.bind(this), 200);
   },
 
-  onCategoryOptionClick: function(categoryId, e) {
+  onCategoryOptionClick: function (categoryId, e) {
     e.preventDefault();
     this.props.onCategoryChange(categoryId);
   },
 
-  onCategoryClick: function(e) {
+  onCategoryClick: function (e) {
     if (this.props.editOnly) {
       e.preventDefault();
       this.refs.editBtn.getDOMNode().click();
     }
   },
 
-  render: function() {
+  render: function () {
     var categoryElements = _.chain(this.state.categories)
-      .reject(function(category) { return category.id === "uncategorized"; })
-      .map(function(category) {
+      .reject(function (category) {
+        return category.id === "uncategorized";
+      })
+      .map(function (category) {
         return <li key={category.id}>
           <a title={category.description} data-placement="left" href="#"
-              className="category-item"
-              onClick={this.onCategoryOptionClick.bind(this, category.id)}>
+             className="category-item"
+             onClick={this.onCategoryOptionClick.bind(this, category.id)}>
             <i className={"category-icon " + category.icon}></i>
             {category.name}
           </a>
@@ -764,15 +768,15 @@ var Category = React.createClass({
 
     return <div className="category-select">
       <a title={category.description} data-placement="left"
-          className={category.id + " category-link"}
-          href={this.props.editOnly ? "#" : "/?q=cat:" + category.id}
-          onClick={this.onCategoryClick}>
+         className={category.id + " category-link"}
+         href={this.props.editOnly ? "#" : "/?q=cat:" + category.id}
+         onClick={this.onCategoryClick}>
         <i className={category.icon + " category-icon"}></i> {category.name}
       </a>
 
       <div className="dropdown">
         <a ref="editBtn" className="dropdown-toggle" data-toggle="dropdown"
-            data-target="#">
+           data-target="#">
           <i className="icon-edit"></i>
         </a>
         <ul className="dropdown-menu pull-right">
@@ -788,18 +792,18 @@ var Category = React.createClass({
 
 // This is the tags widget on the details page.
 var Tags = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       isEditing: false,
       allTags: {}
     };
   },
 
-  componentDidMount: function() {
+  componentDidMount: function () {
     this.fetchAllTags();
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate: function () {
     if (this.refs && this.refs.tagInput) {
       var $input = $(this.refs.tagInput.getDOMNode());
       if (!this.props.editOnly) {
@@ -809,11 +813,11 @@ var Tags = React.createClass({
     }
   },
 
-  initTypeahead: function($input) {
+  initTypeahead: function ($input) {
     var allTags = this.state.allTags;
 
-    var sortTagsByCount = function(items) {
-      return _.sortBy(items, function(tag) {
+    var sortTagsByCount = function (items) {
+      return _.sortBy(items, function (tag) {
         return -allTags[tag].count;
       });
     };
@@ -823,14 +827,14 @@ var Tags = React.createClass({
     $input.typeahead({
       source: _.keys(allTags),
 
-      sorter: function(items) {
+      sorter: function (items) {
         var exactMatches = [];
         var prefixMatches = [];
         var otherMatches = [];
         var lowerCaseQuery = this.query.toLowerCase();
 
         // Group matches into exact matches, prefix matches, and remaining
-        _.each(items, function(tag) {
+        _.each(items, function (tag) {
           var lowerCaseTag = tag.toLowerCase();
           if (lowerCaseTag === lowerCaseQuery) {
             exactMatches.push(tag);
@@ -842,55 +846,55 @@ var Tags = React.createClass({
         });
 
         return sortTagsByCount(exactMatches).concat(
-            sortTagsByCount(prefixMatches), sortTagsByCount(otherMatches));
+          sortTagsByCount(prefixMatches), sortTagsByCount(otherMatches));
       },
 
-      highlighter: function(item) {
+      highlighter: function (item) {
         var Typeahead = $.fn.typeahead.Constructor;
         var tagName = capitalizeFirstLetter(item);
         var highlighted = Typeahead.prototype.highlighter.call(this,
-            _.escape(tagName));
+          _.escape(tagName));
         return highlighted + "<span class=\"count\">&times; " +
-            allTags[item].count + "</span>";
+          allTags[item].count + "</span>";
       },
 
-      updater: function(item) {
+      updater: function (item) {
         return capitalizeFirstLetter(item);
       }
     });
   },
 
-  fetchAllTags: function() {
+  fetchAllTags: function () {
     if (!_.isEmpty(allTags)) {
       this.setState({allTags: allTags});
       return;
     }
 
-    $.getJSON("/api/tags", function(data) {
+    $.getJSON("/api/tags", function (data) {
       allTags = {};
-      _.each(data, function(tag) {
+      _.each(data, function (tag) {
         allTags[tag.id] = tag;
       });
       this.setState({allTags: allTags});
     }.bind(this));
   },
 
-  onEditBtnClick: function() {
+  onEditBtnClick: function () {
     this.setState({isEditing: true});
   },
 
-  onDoneBtnClick: function() {
+  onDoneBtnClick: function () {
     this.setState({isEditing: false});
   },
 
-  onRemoveBtnClick: function(tag, e) {
+  onRemoveBtnClick: function (tag, e) {
     this.props.onTagsChange(_.without(this.props.tags, tag));
   },
 
-  onKeyUp: function(e) {
+  onKeyUp: function (e) {
     var key = e.keyCode;
     if (key === 13 /* enter */ || key === 9 /* tab */ ||
-        key === 188 /* comma */) {
+      key === 188 /* comma */) {
       var $input = $(this.refs.tagInput.getDOMNode());
       // TODO(david): This needs to use autocomplete
       var tagId = $input.val().replace(/,$/, "").toLowerCase();
@@ -902,31 +906,31 @@ var Tags = React.createClass({
     }
   },
 
-  onKeyDown: function(e) {
+  onKeyDown: function (e) {
     var key = e.keyCode;
     if (key === 13 /* enter */) {
       e.preventDefault();  // Prevent unintended form submission
     }
   },
 
-  render: function() {
+  render: function () {
     var MAX_TAGS = 4;
     var isEditing = this.state.isEditing || this.props.editOnly;
 
     var actionBtn;
     if (isEditing) {
       actionBtn = <button type="button"
-          onClick={this.onDoneBtnClick} className="action-btn done-btn">
+                          onClick={this.onDoneBtnClick} className="action-btn done-btn">
         <i className="icon-check"></i> Done
       </button>;
     } else {
       actionBtn = <button type="button"
-          onClick={this.onEditBtnClick} className="action-btn edit-btn">
+                          onClick={this.onEditBtnClick} className="action-btn edit-btn">
         <i className="icon-edit"></i> Edit
       </button>;
     }
 
-    var tags = _.map(this.props.tags, function(tag) {
+    var tags = _.map(this.props.tags, function (tag) {
       // TODO(david): Should get tag name from map of tags that we send down.
       var tagName = capitalizeFirstLetter(tag);
       return <li key={tag} className="tag">
@@ -934,7 +938,7 @@ var Tags = React.createClass({
           {tagName}
         </a>
         <i onClick={this.onRemoveBtnClick.bind(this, tag)}
-            className="icon-remove-sign remove-btn"></i>
+           className="icon-remove-sign remove-btn"></i>
       </li>;
     }.bind(this));
 
@@ -943,16 +947,16 @@ var Tags = React.createClass({
       <h3 className="tags-label">Tags</h3>
       <ul className="tags-list">{tags}</ul>
       {isEditing && this.props.tags.length < MAX_TAGS &&
-          <input ref="tagInput" onKeyDown={this.onKeyDown}
-              onKeyUp={this.onKeyUp} type="text"
-              maxLength="12" className="tag-input" placeholder="Add tag" />}
+      <input ref="tagInput" onKeyDown={this.onKeyDown}
+             onKeyUp={this.onKeyUp} type="text"
+             maxLength="12" className="tag-input" placeholder="Add tag"/>}
       {!this.props.editOnly && actionBtn}
     </div>;
   }
 });
 
 var Markdown = React.createClass({
-  render: function() {
+  render: function () {
     markedRenderer.image = this.replaceRelativeUrlWithGithubImgSrc;
     var markedHtml = marked(this.props.children || '',
       {renderer: markedRenderer});
@@ -968,7 +972,7 @@ var Markdown = React.createClass({
    * @param {string} title The title of the image
    * @param {string} text The alt of the image
    */
-  replaceRelativeUrlWithGithubImgSrc: function(href, title, text) {
+  replaceRelativeUrlWithGithubImgSrc: function (href, title, text) {
     // Checks if the href is not an absolute URL
     // http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
     if (!href.match(/^(?:[a-z]+:)?\/\//i)) {
@@ -981,7 +985,7 @@ var Markdown = React.createClass({
 });
 
 var Plaintext = React.createClass({
-  render: function() {
+  render: function () {
     // TODO(david): Linkify <a> tags
     // TODO(david): Linkify "vimscript #2136" references (e.g. surround-vim'
     //     vim.org long description)
@@ -993,11 +997,11 @@ var Plaintext = React.createClass({
 
 // Permalink page with more details about a plugin.
 var PluginPage = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {};
   },
 
-  updateTitle: function() {
+  updateTitle: function () {
     if (!this._previousTitle) {
       this._previousTitle = document.title;
     }
@@ -1006,13 +1010,13 @@ var PluginPage = React.createClass({
     }
   },
 
-  resetTitle: function() {
+  resetTitle: function () {
     if (this._previousTitle) {
       document.title = this._previousTitle;
     }
   },
 
-  componentDidMount: function() {
+  componentDidMount: function () {
     this.fetchPlugin();
     this.updateTitle();
     window.addEventListener("keydown", this.onWindowKeyDown, false);
@@ -1021,17 +1025,17 @@ var PluginPage = React.createClass({
     this.tagXhrQueue.resolve();
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount: function () {
     this.resetTitle();
     window.removeEventListener("keydown", this.onWindowKeyDown, false);
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate: function () {
     this.updateTitle();
   },
 
-  fetchPlugin: function() {
-    $.getJSON("/api/plugins/" + this.props.params.slug, function(data) {
+  fetchPlugin: function () {
+    $.getJSON("/api/plugins/" + this.props.params.slug, function (data) {
       this.setState(data);
 
       // Save in localStorage that this plugin has been visited.
@@ -1044,7 +1048,7 @@ var PluginPage = React.createClass({
   },
 
   // TODO(david): Maybe use keypress?
-  onWindowKeyDown: function(e) {
+  onWindowKeyDown: function (e) {
     var tag = e.target.tagName;
     if (tag === "INPUT" || tag === "TEXTAREA") {
       return;
@@ -1052,8 +1056,7 @@ var PluginPage = React.createClass({
 
     var key = e.keyCode;
     var direction;
-    var gPressed = (key === G_KEYCODE && !e.altKey && !e.ctrlKey &&
-        !e.shiftKey && !e.metaKey);
+    var gPressed = (key === G_KEYCODE && !e.altKey && !e.ctrlKey && !e.shiftKey && !e.metaKey);
 
     if (key === J_KEYCODE || key === K_KEYCODE) {
       // Scroll page in small increments with j/k.
@@ -1075,38 +1078,38 @@ var PluginPage = React.createClass({
     this.gLastPressed = gPressed;
   },
 
-  onCategoryChange: function(categoryId) {
+  onCategoryChange: function (categoryId) {
     this.setState({category: categoryId});
 
     $.ajax({
       url: "/api/plugins/" + this.props.params.slug + "/category/" +
-        categoryId,
+      categoryId,
       type: "PUT"
     });
   },
 
   // TODO(david): Should we adopt the "handleTagsChange" naming convention?
-  onTagsChange: function(tags) {
+  onTagsChange: function (tags) {
     var newTags = _.uniq(tags);
     this.setState({tags: newTags});
 
     // We queue up AJAX requests to avoid race conditions on the server.
     var self = this;
-    this.tagXhrQueue.done(function() {
+    this.tagXhrQueue.done(function () {
       $.ajax({
         url: "/api/plugins/" + self.props.params.slug + "/tags",
         type: "POST",
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify({tags: newTags}),
-        success: function() {
+        success: function () {
           self.tagXhrQueue.resolve();
         }
       });
     });
   },
 
-  render: function() {
+  render: function () {
     if (!this.state.slug) {
       return <div className="plugin-page">
         <Spinner />
@@ -1120,7 +1123,7 @@ var PluginPage = React.createClass({
 
     // TODO(david): Handle rst filetype
     var readmeFilename = (
-        this.state.github_readme_filename || '').toLowerCase();
+    this.state.github_readme_filename || '').toLowerCase();
     var longDescType = "plain";
     if (_.contains(["md", "markdown", "mkd", "mkdn"],
         readmeFilename.split(".").pop())) {
@@ -1130,11 +1133,11 @@ var PluginPage = React.createClass({
     }
 
     var vimOrgUrl = this.state.vimorg_id &&
-        ("http://www.vim.org/scripts/script.php?script_id=" +
-        encodeURIComponent(this.state.vimorg_id));
+      ("http://www.vim.org/scripts/script.php?script_id=" +
+      encodeURIComponent(this.state.vimorg_id));
 
     return <div className="plugin-page">
-      <Plugin plugin={this.state} />
+      <Plugin plugin={this.state}/>
 
       <div className="row-fluid">
         <div className="span9 dates">
@@ -1171,42 +1174,42 @@ var PluginPage = React.createClass({
 
       <div className="row-fluid">
         <div className="span9">
-          <Install github_url={this.state.github_url} />
+          <Install github_url={this.state.github_url}/>
         </div>
         <div className="span3">
           <div className="row-fluid">
             <div className="span12">
               <Category category={this.state.category}
-                  onCategoryChange={this.onCategoryChange} />
+                        onCategoryChange={this.onCategoryChange}/>
             </div>
           </div>
           <div className="row-fluid">
             <div className="span12">
-              <Tags tags={this.state.tags} onTagsChange={this.onTagsChange} />
+              <Tags tags={this.state.tags} onTagsChange={this.onTagsChange}/>
             </div>
           </div>
         </div>
       </div>
 
       {(longDesc || installDetails) &&
-        <div className="row-fluid long-desc-container">
-          <div className="long-desc">
-            {longDescType === "markdown" &&
-              <Markdown githubRepoUrl={this.state.github_url}>
-                {longDesc}
-              </Markdown>
-            }
-            {longDescType === "mono" &&
-                <Plaintext className="mono">{longDesc}</Plaintext>}
-            {longDescType === "plain" && <Plaintext>{longDesc}</Plaintext>}
-            {!!installDetails &&
-              <div>
-                <h2>Installation</h2>
-                <Plaintext>{installDetails}</Plaintext>
-              </div>
-            }
+      <div className="row-fluid long-desc-container">
+        <div className="long-desc">
+          {longDescType === "markdown" &&
+          <Markdown githubRepoUrl={this.state.github_url}>
+            {longDesc}
+          </Markdown>
+          }
+          {longDescType === "mono" &&
+          <Plaintext className="mono">{longDesc}</Plaintext>}
+          {longDescType === "plain" && <Plaintext>{longDesc}</Plaintext>}
+          {!!installDetails &&
+          <div>
+            <h2>Installation</h2>
+            <Plaintext>{installDetails}</Plaintext>
           </div>
+          }
         </div>
+      </div>
       }
 
     </div>;
@@ -1217,26 +1220,26 @@ var PluginListPage = React.createClass({
   // TODO(david): What happens if user goes to non-existent page?
   // TODO(david): Update title so that user has meaningful history entries.
 
-  getInitialState: function() {
+  getInitialState: function () {
     return this.getStateFromProps(this.props);
   },
 
-  componentWillReceiveProps: function(nextProps) {
+  componentWillReceiveProps: function (nextProps) {
     // TODO(david): pushState previous results so we don't re-fetch. Or, set up
     //     a jQuery AJAX hook to cache all GET requests!!!! That will help with
     //     so many things!!! (But make sure not to exceed a memory threshold.)
     this.setState(this.getStateFromProps(nextProps));
   },
 
-  onSearchFocus: function() {
+  onSearchFocus: function () {
     this.refs.pluginList.unselect();
   },
 
-  onSearchBlur: function() {
+  onSearchBlur: function () {
     this.refs.pluginList.select();
   },
 
-  onSearchChange: function(query) {
+  onSearchChange: function (query) {
     this.setState({
       searchQuery: query,
       currentPage: 1
@@ -1244,7 +1247,7 @@ var PluginListPage = React.createClass({
     this.refs.pluginList.unselect();
   },
 
-  getStateFromProps: function(props) {
+  getStateFromProps: function (props) {
     var queryParams = props.query;
     var currentPage = +(queryParams.p || 1);
 
@@ -1254,7 +1257,7 @@ var PluginListPage = React.createClass({
     };
   },
 
-  updateUrlFromState: function() {
+  updateUrlFromState: function () {
     var queryObject = {};
 
     if (this.state.currentPage !== 1) {
@@ -1270,7 +1273,7 @@ var PluginListPage = React.createClass({
     transitionTo("plugin-list", null, queryObject);
   },
 
-  onPluginsFetched: function() {
+  onPluginsFetched: function () {
     // Update the URL when the page content has been updated if necessary.
     if (!_.isEqual(this.getStateFromProps(this.props), this.state)) {
       this.updateUrlFromState();
@@ -1280,24 +1283,24 @@ var PluginListPage = React.createClass({
     window.scrollTo(0, 0);
   },
 
-  onPageChange: function(page) {
+  onPageChange: function (page) {
     this.setState({currentPage: page});
   },
 
-  render: function() {
+  render: function () {
     return <div>
       <SearchBox searchQuery={this.state.searchQuery}
-          onChange={this.onSearchChange} onFocus={this.onSearchFocus}
-          onBlur={this.onSearchBlur} />
+                 onChange={this.onSearchChange} onFocus={this.onSearchFocus}
+                 onBlur={this.onSearchBlur}/>
       <div className="keyboard-tips">
         Tip: use <code>/</code> to search,{' '}
         <code>J</code>/<code>K</code> to navigate,{' '}
         <code>N</code>/<code>P</code> to flip pages
       </div>
       <PluginList ref="pluginList" searchQuery={this.state.searchQuery}
-          currentPage={this.state.currentPage}
-          onPluginsFetched={this.onPluginsFetched}
-          onPageChange={this.onPageChange} />
+                  currentPage={this.state.currentPage}
+                  onPluginsFetched={this.onPluginsFetched}
+                  onPageChange={this.onPageChange}/>
     </div>;
   }
 });
@@ -1305,30 +1308,79 @@ var PluginListPage = React.createClass({
 // TODO(david): Form validation on submit! Not done right now because we
 //     currently just save this raw data to be manually reviewed.
 var SubmitPage = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
+      name: "",
+      author: "",
+      github_link: "",
+      vimorg_link: "",
       tags: [],
-      category: "uncategorized"
+      category: "uncategorized",
+      submit_value: "Submit",
+      error_message: null
     };
   },
 
-  onTagsChange: function(tags) {
+  onTagsChange: function (tags) {
     this.setState({tags: _.uniq(tags)});
   },
 
-  onCategoryChange: function(category) {
+  onCategoryChange: function (category) {
     this.setState({category: category});
   },
+  handleNameChange: function (e) {
+    this.setState({name: e.target.value});
+  },
+  handleAuthorChange: function (e) {
+    this.setState({author: e.target.value});
+  },
+  handleGithubLinkChange: function (e) {
+    this.setState({github_link: e.target.value});
+  },
+  handleVimorgLinkChange: function (e) {
+    this.setState({vimorg_link: e.target.value});
+  }
+  ,
+  handleSubmit: function (e) {
+    e.preventDefault();
+    var name = this.state.name.trim();
+    var author = this.state.author.trim();
+    var github_link = this.state.github_link.trim();
+    var vimorg_link = this.state.vimorg_link.trim();
+    var tags = this.state.tags;
+    var category = this.state.category.trim();
+    if ((!name || !author) || (!vimorg_link || !github_link)) {
+      this.setState({error_message: "Please fill required fields."});
+      return;
+    }
+    $.ajax({
+      url: '/api/submit',
+      method: 'POST',
+      dataType: "json",
+      data: "name=" + name + "&author=" + author + "&github-link=" + github_link + "&vimorg-link=" + vimorg_link + "&tags=" + JSON.stringify(tags) + "&category=" + category,
+      success: function (rsp) {
+        if(rsp.status==true){
+          document.location = rsp.redirect;
+        }else{
+          this.setState({error_message: rsp.message})
+        }
+      }.bind(this)
+    })
 
-  render: function() {
+  },
+
+  render: function () {
+    var alert_class = "alert alert-error" + (this.state.error_message ? "" : " hide");
     return <div className="submit-page">
       <h1>Submit plugin</h1>
-      <form className="form-horizontal" action="/api/submit" method="POST">
+      <div className={alert_class}>{this.state.error_message}</div>
+      <form className="form-horizontal" onSubmit={this.handleSubmit}>
         <div className="control-group">
           <label className="control-label" htmlFor="name-input">Name</label>
           <div className="controls">
             <input type="text" name="name" id="name-input"
-                placeholder="e.g. Fugitive" />
+                   placeholder="e.g. Fugitive"
+                   value={this.state.text} onChange={this.handleNameChange}/>
           </div>
         </div>
         <div className="control-group">
@@ -1337,7 +1389,8 @@ var SubmitPage = React.createClass({
           </label>
           <div className="controls">
             <input type="text" name="author" id="author-input"
-                placeholder="e.g. Tim Pope" />
+                   placeholder="e.g. Tim Pope"
+                   value={this.state.author} onChange={this.handleAuthorChange}/>
           </div>
         </div>
         <div className="control-group">
@@ -1346,7 +1399,8 @@ var SubmitPage = React.createClass({
           </label>
           <div className="controls">
             <input type="text" name="github-link" id="github-input"
-                placeholder="e.g. https://github.com/tpope/vim-fugitive" />
+                   placeholder="e.g. https://github.com/tpope/vim-fugitive"
+                   value={this.state.github_link} onChange={this.handleGithubLinkChange}/>
           </div>
         </div>
         <div className="control-group">
@@ -1355,8 +1409,9 @@ var SubmitPage = React.createClass({
           </label>
           <div className="controls">
             <input type="text" name="vimorg-link" id="vimorg-input"
-                placeholder={"e.g. " +
-                    "http://www.vim.org/scripts/script.php?script_id=2975"} />
+                   placeholder={"e.g. " +
+                    "http://www.vim.org/scripts/script.php?script_id=2975"}
+                   value={this.state.vimorg_link} onChange={this.handleVimorgLinkChange}/>
           </div>
         </div>
         <div className="control-group">
@@ -1365,7 +1420,7 @@ var SubmitPage = React.createClass({
           </label>
           <div className="controls">
             <Category category={this.state.category} editOnly={true}
-                onCategoryChange={this.onCategoryChange} />
+                      onCategoryChange={this.onCategoryChange}/>
           </div>
         </div>
         <div className="control-group">
@@ -1374,7 +1429,7 @@ var SubmitPage = React.createClass({
           </label>
           <div className="controls">
             <Tags tags={this.state.tags} editOnly={true}
-                onTagsChange={this.onTagsChange} />
+                  onTagsChange={this.onTagsChange}/>
           </div>
         </div>
         <div className="control-group">
@@ -1388,22 +1443,21 @@ var SubmitPage = React.createClass({
         <div className="control-group">
           <div className="controls">
             <button type="submit">
-              Submit
+              {this.state.submit_value}
               <span className="right-arrow">{"\u2192"}</span>
             </button>
           </div>
         </div>
         <input type="hidden" name="category"
-            value={this.state.category} />
+               value={this.state.category}/>
         <input type="hidden" name="tags"
-            value={JSON.stringify(this.state.tags)} />
+               value={JSON.stringify(this.state.tags)}/>
       </form>
     </div>;
   }
 });
-
 var ThanksForSubmittingPage = React.createClass({
-  render: function() {
+  render: function () {
     return <div className="thanks-for-submitting-page">
       <div className="thanks-box">
         <h1>Thanks!</h1>
@@ -1416,7 +1470,7 @@ var ThanksForSubmittingPage = React.createClass({
 });
 
 var Page = React.createClass({
-  componentDidUpdate: function() {
+  componentDidUpdate: function () {
     // Google Analytics pageview tracking for single page app
     // Thank you https://gist.github.com/daveaugustine/1771986#comment-958107
     var ga = window.ga;
@@ -1426,9 +1480,9 @@ var Page = React.createClass({
     }
   },
 
-  render: function() {
+  render: function () {
     return <div className="page-container">
-      <Sidebar query={this.props.query} />
+      <Sidebar query={this.props.query}/>
       <div className="content">
         {this.props.activeRoute}
         <Footer />
@@ -1438,19 +1492,19 @@ var Page = React.createClass({
 });
 
 var routes = <Route handler={Page} location="history">
-  <Route name="plugin-list" path="/" handler={PluginListPage} />
-  <Route name="plugin" path="plugin/:slug" handler={PluginPage} />
-  <Route name="submit" handler={SubmitPage} />
-  <Route name="thanks-for-submitting" handler={ThanksForSubmittingPage} />
-  <Route name="about" handler={AboutPage} />
+  <Route name="plugin-list" path="/" handler={PluginListPage}/>
+  <Route name="plugin" path="plugin/:slug" handler={PluginPage}/>
+  <Route name="submit" handler={SubmitPage}/>
+  <Route name="thanks-for-submitting" handler={ThanksForSubmittingPage}/>
+  <Route name="about" handler={AboutPage}/>
 </Route>;
 React.renderComponent(routes, document.body);
 
 // Hijack internal nav links to use router to navigate between pages
 // Adapted from https://gist.github.com/tbranyen/1142129
-$(document).on("click", "a", function(evt) {
+$(document).on("click", "a", function (evt) {
   if (evt.which === 2 ||  // middle click
-      evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
+    evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
     return;
   }
   var href = $(this).attr("href");
@@ -1459,7 +1513,7 @@ $(document).on("click", "a", function(evt) {
   // Only hijack URL to use router if it's relative (internal link) and not a
   // hash fragment.
   if (href && href.substr(0, protocol.length) !== protocol &&
-      href[0] !== '#') {
+    href[0] !== '#') {
     evt.preventDefault();
     transitionToPath(this.pathname + this.search, true);
 
