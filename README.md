@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/vim-awesome/vim-awesome.svg?branch=master)](https://travis-ci.org/vim-awesome/vim-awesome)
+
 # Vim Awesome
 
 Vim Awesome wants to be a comprehensive, accurate, and up-to-date directory of
