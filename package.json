@@ -16,7 +16,7 @@
     "jsx-loader": "~0.10.2",
     "marked": "~0.3.2",
     "moment": "~2.13.0",
-    "react": "~0.10.0",
+    "react": "~15.0.2",
     "react-nested-router": "~0.2.0",
     "store": "~1.3.16",
     "underscore": "~1.8.3",
