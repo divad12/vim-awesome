@@ -31,7 +31,13 @@ module.exports = {
   devtool: 'source-map',
   module: {
     loaders: [
-      { test: /\.jsx$/, loader: "jsx-loader?harmony" }
+      {
+        test: /\.jsx$/,
+        loader: "babel",
+        query: {
+          presets: ['react']
+        }
+      }
     ]
   },
   plugins: plugins
