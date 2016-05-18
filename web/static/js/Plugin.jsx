@@ -1,11 +1,10 @@
-/** @jsx React.DOM */
-
 "use strict";
 
 var $ = require("jquery");
 var React = require("react");
 var store = require("store");
-var transitionTo = require("react-nested-router").transitionTo;
+var browserHistory = require("react-router").browserHistory;
+var findDOMNode = require("react-dom").findDOMNode;
 
 var Plugin = React.createClass({
   getInitialState: function() {
@@ -23,7 +22,7 @@ var Plugin = React.createClass({
   },
 
   componentWillUnmount: function() {
-    $(this.getDOMNode()).find('[title]').tooltip('destroy');
+    $(findDOMNode(this)).find('[title]').tooltip('destroy');
   },
 
   componentDidUpdate: function() {
@@ -31,14 +30,14 @@ var Plugin = React.createClass({
   },
 
   addBootstrapTooltips: function() {
-    $(this.getDOMNode()).find('[title]').tooltip({
+    $(findDOMNode(this)).find('[title]').tooltip({
       animation: false,
       container: 'body'
     });
   },
 
   goToDetailsPage: function() {
-    transitionTo("plugin", {slug: this.props.plugin.slug});
+    browserHistory.push("plugin/" + this.props.plugin.slug);
   },
 
   render: function() {
@@ -53,6 +52,7 @@ var Plugin = React.createClass({
         className={"plugin" + (hasNavFocus ? " nav-focus" : "") +
             (this.state.hasVisited ? " visited" : "")}
         onMouseEnter={this.props.onMouseEnter}>
+      {/* TODO(captbaritone): Use react-router Link */}
       <a href={"/plugin/" + plugin.slug}>
         <h3 className={"plugin-name " + plugin.category}>{plugin.name}</h3>
         {plugin.author && <span className="by">by</span>}

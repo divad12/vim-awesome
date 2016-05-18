@@ -1,18 +1,17 @@
-/** @jsx React.DOM */
-
 "use strict";
 
 var $ = require("jquery");
 var _ = require("underscore");
 var React = require("react");
-var Route = require("react-nested-router").Route;
+var render = require("react-dom").render;
+var Router = require("react-router").Router;
+var browserHistory = require("react-router").browserHistory;
+var Route = require("react-router").Route;
+var IndexRoute = require("react-router").IndexRoute;
 var marked = require("marked");
 var moment = require("moment");
 var store = require("store");
-var transitionTo = require("react-nested-router").transitionTo;
-// TODO(alpert): Get a public API exposed for this
-var transitionToPath =
-  require("react-nested-router/modules/stores/URLStore").push;
+var transitionTo = require("react-router").transitionTo;
 
 // For React devtools
 window.React = React;
@@ -231,7 +230,7 @@ var PluginList = React.createClass({
 
         // Scroll to the navigated plugin if available.
         if (this.refs && this.refs.navFocus) {
-          scrollToNode(this.refs.navFocus.getDOMNode(), 105 /* context */);
+          scrollToNode(this.refs.navFocus, 105 /* context */);
         }
       } else if ((key === KEYCODES.ENTER || key === KEYCODES.O) &&
           this.refs && this.refs.navFocus) {
@@ -474,8 +473,8 @@ var Install = React.createClass({
 
     var self = this;
     _.each(popovers, function(component, ref) {
-      var markup = React.renderComponentToString(component);
-      var $tabElem = $(self.refs[ref].getDOMNode());
+      var markup = 'TEST'; //React.renderComponentToString(component);
+      var $tabElem = $(self.refs[ref]);
       $tabElem.popover({
         html: true,
         content: markup,
@@ -828,7 +827,7 @@ var PluginListPage = React.createClass({
   },
 
   getStateFromProps: function(props) {
-    var queryParams = props.query;
+    var queryParams = props.location.query;
     var currentPage = +(queryParams.p || 1);
 
     return {
@@ -885,18 +884,22 @@ var PluginListPage = React.createClass({
   }
 });
 
-var routes = <Route handler={Page} location="history">
-  <Route name="plugin-list" path="/" handler={PluginListPage} />
-  <Route name="plugin" path="plugin/:slug" handler={PluginPage} />
-  <Route name="submit" handler={SubmitPage} />
-  <Route name="thanks-for-submitting" handler={ThanksForSubmittingPage} />
-  <Route name="about" handler={AboutPage} />
-  <Route path="*" handler={NotFound} />
-</Route>;
-React.renderComponent(routes, document.body);
+render((
+  <Router history={browserHistory}>
+    <Route path="/" component={Page}>
+      <IndexRoute component={PluginListPage} />
+      <Route path="plugin/:slug" component={PluginPage} />
+      <Route path="submit" component={SubmitPage} />
+      <Route path="thanks-for-submitting" component={ThanksForSubmittingPage} />
+      <Route path="about" component={AboutPage} />
+      <Route path="*" component={NotFound} />
+    </Route>
+  </Router>), document.getElementById('app'));
 
 // Hijack internal nav links to use router to navigate between pages
 // Adapted from https://gist.github.com/tbranyen/1142129
+// TODO(captbaritone): It may be possible to remove this hack by moving to
+// react-router Link
 $(document).on("click", "a", function(evt) {
   if (evt.which === 2 ||  // middle click
       evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
@@ -910,7 +913,7 @@ $(document).on("click", "a", function(evt) {
   if (href && href.substr(0, protocol.length) !== protocol &&
       href[0] !== '#') {
     evt.preventDefault();
-    transitionToPath(this.pathname + this.search, true);
+    browserHistory.push(this.pathname + this.search);
 
     // Scroll to top. Chrome has this weird issue where it will retain the
     // current scroll position, even if it's beyond the document's height.

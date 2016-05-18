@@ -1,11 +1,9 @@
-/** @jsx React.DOM */
-
 "use strict";
 
 var $ = require("jquery");
 var _ = require("underscore");
 var React = require("react");
-var transitionTo = require("react-nested-router").transitionTo;
+var browserHistory = require("react-router").browserHistory;
 
 var SidebarCategory = require("./SidebarCategory.jsx");
 var utils = require("./utils.js");
@@ -28,21 +26,17 @@ var Sidebar = React.createClass({
 
     // This event is triggered by Bootstrap's collapse widget (which creates the
     // accordion) when a category is expanded.
-    $(this.refs.categories.getDOMNode()).on('show', this.onCategoryShow);
+    $(this.refs.categories).on('show', this.onCategoryShow);
   },
 
   onCategoryShow: function(e) {
     var category = $(e.target).data('category');
-    transitionTo("plugin-list", null, {"q": "cat:" + category});
+    browserHistory.push({query: {"q": "cat:" + category}});
   },
 
   render: function() {
-    var selectedTags = [];
-    // Use _.get when it's ready (or when we switch to lodash)
-    if (this.props.query && this.props.query.q) {
-      selectedTags = utils.getQueriesWithPrefix(this.props.query.q, 'tag');
-    }
-
+    var query = this.props.query.q || '';
+    var selectedTags = utils.getQueriesWithPrefix(query, 'tag');
     var categories = _.reject(this.state.categories, {id: "uncategorized"});
 
     return <div className="sidebar">

@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 "use strict";
 
 var React = require("react");
@@ -20,9 +18,9 @@ var Page = React.createClass({
 
   render: function() {
     return <div className="page-container">
-      <Sidebar query={this.props.query} />
+      <Sidebar query={this.props.location.query} />
       <div className="content">
-        {this.props.activeRoute}
+        {this.props.children}
         <Footer />
       </div>
     </div>;

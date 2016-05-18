@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 "use strict";
 
 var _ = require("underscore");
@@ -65,12 +63,14 @@ var SubmitPage = React.createClass({
   },
 
   // TODO(captbaritone): Submit the form via API
-  onSubmit: function() {
+  onSubmit: function(e) {
     // Enable validation errors
     this.setState({submitting: true});
 
     // Should the for actually submit?
-    return this.formIsValid();
+    if (!this.formIsValid()) {
+        e.preventDefault();
+    }
   },
 
   render: function() {

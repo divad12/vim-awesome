@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 "use strict";
 
 var React = require("react");
@@ -66,30 +64,30 @@ var AboutPage = React.createClass({
         <h2>Contribute?</h2>
         <p>
           Why, thank you! There are lots of things you can do to help out:
-          <ul>
-            <li>
-              Tackle a{' '}
-              <a href="https://github.com/vim-awesome/vim-awesome/issues?labels=easyfix&amp;state=open">
-                starter issue on GitHub
-              </a> (or report an issue!).
-            </li>
-            <li>
-              Categorize and tag some of{' '}
-              <a href="/?q=cat:uncategorized">
-                these plugins
-              </a>.
-            </li>
-            <li>
-              <a href="/submit">
-                Submit
-              </a>{' '}
-              new plugins.
-            </li>
-            <li>
-              Share this site if you find it useful! :)
-            </li>
-          </ul>
         </p>
+        <ul>
+          <li>
+            Tackle a{' '}
+            <a href="https://github.com/vim-awesome/vim-awesome/issues?labels=easyfix&amp;state=open">
+              starter issue on GitHub
+            </a> (or report an issue!).
+          </li>
+          <li>
+            Categorize and tag some of{' '}
+            <a href="/?q=cat:uncategorized">
+              these plugins
+            </a>.
+          </li>
+          <li>
+            <a href="/submit">
+              Submit
+            </a>{' '}
+            new plugins.
+          </li>
+          <li>
+            Share this site if you find it useful! :)
+          </li>
+        </ul>
 
         <h2>Acknowledgements</h2>
         <p>
