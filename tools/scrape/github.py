@@ -21,6 +21,9 @@ import util
 
 r_conn = db.util.r_conn
 
+# The number of forks a plugin must have before we will index it
+MIN_FORK_USERS = 3
+
 try:
     import secrets
     _GITHUB_API_TOKEN = getattr(secrets, 'GITHUB_PERSONAL_ACCESS_TOKEN', None)
@@ -208,11 +211,116 @@ def _add_submission_data(plugin, submission):
         db.plugins.update_tags(plugin, submission['tags'])
 
 
-# TODO(david): Simplify/break-up this function.
-def scrape_plugin_repos(num):
-    """Scrapes the num plugin repos that have been least recently scraped."""
-    MIN_FORK_USERS = 3
+def mark_plugin_repo_as_missing(repo):
+    repo_name = repo['repo_name']
+    repo_owner = repo['owner']
 
+    res = requests.head('https://github.com/%s/%s' % (repo_owner, repo_name))
+
+    if res.status_code != 301:
+        # TODO(david): Insert some metadata in the github repo that this is not
+        # found
+        print 'not found.'
+        return
+
+    location = res.headers.get('location')
+    _, redirect_owner, redirect_repo_name = location.rsplit('/', 2)
+
+    repo['redirects_to'] = '%s/%s' % (redirect_owner, redirect_repo_name)
+
+    print 'redirects_to %s' % repo['redirects_to']
+
+    PluginGithubRepos.upsert_with_owner_repo(repo)
+
+    # Make sure we insert the new location of the repo, which will be scraped
+    # in a future run.
+    PluginGithubRepos.upsert_with_owner_repo({
+        'owner': redirect_owner,
+        'repo_name': redirect_repo_name,
+        # TODO(david): Should append to a list
+        'redirects_from': ('%s/%s' % (repo_owner, repo_name)),
+    })
+
+    # And now change the GitHub repo location of the plugin that the old repo
+    # location pointed to
+    query = r.table('plugins').get_all(
+            [repo_owner, repo_name], index='github_owner_repo')
+    db_plugin = db.util.get_first(query)
+    if db_plugin:
+        db_plugin['github_owner'] = redirect_owner
+        db_plugin['github_repo_name'] = redirect_repo_name
+        db.plugins.insert(db_plugin, conflict='replace')
+
+    print 'redirects to %s/%s.' % (redirect_owner, redirect_repo_name)
+
+
+def scrape_plugin_repo(repo):
+    repo_name = repo['repo_name']
+    repo_owner = repo['owner']
+
+    # Print w/o newline.
+    print "    scraping %s/%s ..." % (repo_owner, repo_name),
+    sys.stdout.flush()
+
+    # Attempt to fetch data about the plugin.
+    res, repo_data = get_api_page('repos/%s/%s' % (repo_owner, repo_name))
+
+    # If the API call 404s, then see if the repo has been renamed by
+    # checking for a redirect in a non-API call.
+    if res.status_code == 404:
+        mark_plugin_repo_as_missing(repo)
+        return
+
+    repo['repo_data'] = repo_data
+    repo['repo_id'] = str(repo_data.get('id', repo['repo_id']))
+    PluginGithubRepos.log_scrape(repo)
+
+    # If this is a fork, note it and ensure we know about original repo.
+    if repo_data.get('fork'):
+        repo['is_fork'] = True
+        PluginGithubRepos.upsert_with_owner_repo({
+            'owner': repo_data['parent']['owner']['login'],
+            'repo_name': repo_data['parent']['name'],
+        })
+
+    PluginGithubRepos.upsert_with_owner_repo(repo)
+
+    # For most cases we don't care about forked repos, unless the forked
+    # repo is used by others.
+    if repo_data.get('fork') and (
+            repo.get('plugin_manager_users', 0) < MIN_FORK_USERS):
+        print 'skipping fork of %s' % repo_data['parent']['full_name']
+        return
+
+    plugin_data = get_plugin_data(repo_owner, repo_name, repo_data)
+
+    # Insert the number of plugin manager users across all names/owners
+    # of this repo.
+    # TODO(david): Try to also use repo_id for this (but not all repos
+    #     have it), or look at multiple levels of redirects.
+    plugin_manager_users = repo.get('plugin_manager_users', 0)
+    other_repos = r.table('plugin_github_repos').get_all(
+            '%s/%s' % (repo_owner, repo_name),
+            index='redirects_to').run(r_conn())
+    for other_repo in other_repos:
+        if other_repo['id'] == repo['id']:
+            continue
+        plugin_manager_users += other_repo.get(
+                'plugin_manager_users', 0)
+
+    plugin_data['github_bundles'] = plugin_manager_users
+
+    if repo.get('from_submission'):
+        _add_submission_data(plugin_data, repo['from_submission'])
+
+    db.plugins.add_scraped_data(plugin_data, repo,
+            submission=repo.get('from_submission'))
+
+    print 'done.'
+
+
+def scrape_num_plugin_repos(num):
+    """Scrapes the num plugin repos that have been least recently scraped."""
     query = r.table('plugin_github_repos').filter({'is_blacklisted': False})
 
     # We don't want to scrape forks that not many people use.
@@ -233,107 +341,7 @@ def scrape_plugin_repos(num):
     # TODO(david): Print stats at the end: # successfully scraped, # not found,
     #     # redirects, etc.
     for repo in repos:
-        repo_name = repo['repo_name']
-        repo_owner = repo['owner']
-
-        # Print w/o newline.
-        print "    scraping %s/%s ..." % (repo_owner, repo_name),
-        sys.stdout.flush()
-
-        # Attempt to fetch data about the plugin.
-        res, repo_data = get_api_page('repos/%s/%s' % (repo_owner, repo_name))
-
-        # If the API call 404s, then see if the repo has been renamed by
-        # checking for a redirect in a non-API call.
-        if res.status_code == 404:
-
-            res = requests.head('https://github.com/%s/%s' % (
-                    repo_owner, repo_name))
-
-            if res.status_code == 301:
-                location = res.headers.get('location')
-                _, redirect_owner, redirect_repo_name = location.rsplit('/', 2)
-
-                repo['redirects_to'] = '%s/%s' % (redirect_owner,
-                        redirect_repo_name)
-
-                # Make sure we insert the new location of the repo, which will
-                # be scraped in a future run.
-                PluginGithubRepos.upsert_with_owner_repo({
-                    'owner': redirect_owner,
-                    'repo_name': redirect_repo_name,
-                    # TODO(david): Should append to a list
-                    'redirects_from': ('%s/%s' % (repo_owner, repo_name)),
-                })
-
-                # And now change the GitHub repo location of the plugin that
-                # the old repo location pointed to
-                query = r.table('plugins').get_all(
-                        [repo_owner, repo_name], index='github_owner_repo')
-                db_plugin = db.util.get_first(query)
-                if db_plugin:
-                    db_plugin['github_owner'] = redirect_owner
-                    db_plugin['github_repo_name'] = redirect_repo_name
-                    db.plugins.insert(db_plugin, conflict='replace')
-
-                print 'redirects to %s/%s.' % (redirect_owner,
-                        redirect_repo_name)
-            else:
-                # TODO(david): Insert some metadata in the github repo that
-                #     this is not found
-                print 'not found.'
-
-            plugin_data = None
-
-        else:
-            plugin_data = get_plugin_data(repo_owner, repo_name, repo_data)
-
-        repo['repo_data'] = repo_data
-        repo['repo_id'] = str(repo_data.get('id', repo['repo_id']))
-        PluginGithubRepos.log_scrape(repo)
-
-        # If this is a fork, note it and ensure we know about original repo.
-        if repo_data.get('fork'):
-            repo['is_fork'] = True
-            PluginGithubRepos.upsert_with_owner_repo({
-                'owner': repo_data['parent']['owner']['login'],
-                'repo_name': repo_data['parent']['name'],
-            })
-
-        PluginGithubRepos.upsert_with_owner_repo(repo)
-
-        # For most cases we don't care about forked repos, unless the forked
-        # repo is used by others.
-        if repo_data.get('fork') and (
-                repo.get('plugin_manager_users', 0) < MIN_FORK_USERS):
-            print 'skipping fork of %s' % repo_data['parent']['full_name']
-            continue
-
-        if plugin_data:
-
-            # Insert the number of plugin manager users across all names/owners
-            # of this repo.
-            # TODO(david): Try to also use repo_id for this (but not all repos
-            #     have it), or look at multiple levels of redirects.
-            plugin_manager_users = repo.get('plugin_manager_users', 0)
-            other_repos = r.table('plugin_github_repos').get_all(
-                    '%s/%s' % (repo_owner, repo_name),
-                    index='redirects_to').run(r_conn())
-            for other_repo in other_repos:
-                if other_repo['id'] == repo['id']:
-                    continue
-                plugin_manager_users += other_repo.get(
-                        'plugin_manager_users', 0)
-
-            plugin_data['github_bundles'] = plugin_manager_users
-
-            if repo.get('from_submission'):
-                _add_submission_data(plugin_data, repo['from_submission'])
-
-            db.plugins.add_scraped_data(plugin_data, repo,
-                    submission=repo.get('from_submission'))
-
-            print 'done.'
+        scrape_plugin_repo(repo)
 
 
 def scrape_vim_scripts_repos(num):

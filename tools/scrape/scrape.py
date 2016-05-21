@@ -6,7 +6,7 @@ from tools.scrape import vimorg, github
 
 def scrape_github_plugins(num):
     print "\nScraping plugins from github.com..."
-    github.scrape_plugin_repos(num)
+    github.scrape_num_plugin_repos(num)
     print "%s GitHub API requests remaining." % github.get_requests_left()
 
 
