@@ -9,7 +9,7 @@
     "babel-jest": "^13.0.0",
     "babel-preset-jest": "^13.0.0",
     "enzyme": "^2.3.0",
-    "eslint": "^2.4.0",
+    "eslint": "^3.0.0",
     "eslint-plugin-react": "^5.1.1",
     "jest-cli": "^13.0.0",
     "react-addons-test-utils": "~15.1.0"
