@@ -6,7 +6,7 @@
     "url": "git://github.com/vim-awesome/vim-awesome.git"
   },
   "devDependencies": {
-    "babel-jest": "^13.0.0",
+    "babel-jest": "^15.0.0",
     "babel-preset-jest": "^13.0.0",
     "enzyme": "^2.3.0",
     "eslint": "^3.19.0",
