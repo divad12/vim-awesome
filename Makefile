@@ -13,7 +13,7 @@ deploy:
 	fi
 
 init_db:
-	PYTHONPATH=. python db/init_db.py
+	PYTHONPATH=. python2 db/init_db.py
 
 # TODO(david): This probably no longer works and needs to be updated.
 seed_data:
@@ -21,19 +21,19 @@ seed_data:
 	@echo
 	@echo
 	@echo "Creating tables with some example data"
-	PYTHONPATH=. python db/seed.py
+	PYTHONPATH=. python2 db/seed.py
 	@echo "Scraping 100 plugins from vim.org."
-	PYTHONPATH=. python tools/scrape/scrape.py -s vim.org 100
+	PYTHONPATH=. python2 tools/scrape/scrape.py -s vim.org 100
 	@echo "Extracting GitHub repo URLs from descriptions."
-	PYTHONPATH=. python tools/scrape/build_github_index.py -s vim.org
+	PYTHONPATH=. python2 tools/scrape/build_github_index.py -s vim.org
 	@echo "Scraping discovered GitHub repos."
-	PYTHONPATH=. python tools/scrape/scrape.py -s github 30
+	PYTHONPATH=. python2 tools/scrape/scrape.py -s github 30
 
 aggregate_tags:
-	PYTHONPATH=. python tools/aggregate.py
+	PYTHONPATH=. python2 tools/aggregate.py
 
 build_github_index:
-	PYTHONPATH=. python tools/scrape/build_github_index.py
+	PYTHONPATH=. python2 tools/scrape/build_github_index.py
 
 test:
 	tox
@@ -52,10 +52,10 @@ restore:
 	rethinkdb restore rethinkdb_dump_remote.tar.gz --force
 
 auto_categorize:
-	PYTHONPATH=. python tools/auto_categorize.py
+	PYTHONPATH=. python2 tools/auto_categorize.py
 
 review_submissions:
-	PYTHONPATH=. python tools/review_submitted_plugins.py
+	PYTHONPATH=. python2 tools/review_submitted_plugins.py
 
 clean:
 	find . -name '*.pyc' -delete

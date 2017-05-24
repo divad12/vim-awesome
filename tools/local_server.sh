@@ -31,4 +31,4 @@ echo "Starting rethinkdb"
 rethinkdb serve -d db/rethinkdb_data &
 
 echo "Starting flask server"
-PYTHONPATH=. FLASK_CONFIG=../conf/flask_dev.py python web/server.py
+PYTHONPATH=. FLASK_CONFIG=../conf/flask_dev.py python2 web/server.py
