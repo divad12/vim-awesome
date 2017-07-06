@@ -67,9 +67,14 @@ var VimPlugInstructions = React.createClass({
 // Instructions for installing a plugin with Pathogen.
 var PathogenInstructions = React.createClass({
   render: function() {
+    //if the url has a trailing slash remove it
+    var url = (this.props.github_url || "").replace(/\/$/, "");
+    // now get the words after last / in url (the title)
+    var pos = url.lastIndexOf("/") + 1;
+    var bundleName = url.substr(pos);
     return <div>
       <p>Run the following in a terminal:</p>
-      <pre>cd ~/.vim/bundle<br/>git clone {this.props.github_url}
+      <pre>git clone {this.props.github_url} ~/.vim/bundle/'{bundleName}'
       </pre>
       {/* Hack to get triple-click in Chrome to not over-select. */}
       <div>{'\u00a0' /* &nbsp; */}</div>
