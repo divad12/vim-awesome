@@ -314,14 +314,17 @@ def to_json(p):
             p['github_stars'] >= p['github_vim_scripts_stars']):
         github_url = _GITHUB_REPO_URL_TEMPLATE % (
                 p['github_owner'], p['github_repo_name'])
+        github_repo_name = p['github_repo_name']
         github_stars = p['github_stars']
         short_desc = p['github_short_desc']
     elif p['github_vim_scripts_repo_name']:
         github_url = _GITHUB_REPO_URL_TEMPLATE % (
                 'vim-scripts', p['github_vim_scripts_repo_name'])
+        github_repo_name = p['github_vim_scripts_repo_name']
         github_stars = p['github_vim_scripts_stars']
     else:
         github_url = None
+        github_repo_name = None
         github_stars = 0
 
     plugin = dict(p, **{
@@ -330,6 +333,7 @@ def to_json(p):
         'plugin_manager_users': plugin_manager_users,
         'short_desc': short_desc,
         'github_url': github_url,
+        'github_repo_name': github_repo_name,
         'github_stars': github_stars,
     })
 
