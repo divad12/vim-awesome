@@ -69,7 +69,7 @@ var PathogenInstructions = React.createClass({
   render: function() {
     return <div>
       <p>Run the following in a terminal:</p>
-      <pre>git clone {this.props.github_url} ~/.vim/bundle/{this.props.github_repo_name}
+      <pre>git clone {this.props.github_url} \<br/>    ~/.vim/bundle/{this.props.github_repo_name}
       </pre>
       {/* Hack to get triple-click in Chrome to not over-select. */}
       <div>{'\u00a0' /* &nbsp; */}</div>
