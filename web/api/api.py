@@ -6,7 +6,7 @@ import flask
 from flask import request
 from web.cache import cache
 import rethinkdb as r
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 
 import web.api.api_util as api_util
 import db
@@ -218,10 +218,10 @@ def submit_plugin():
 
 @api.route('/login', methods=['POST'])
 def submit_login():
-    username = flask.request.get('username')
-    password = flask.request.get('password')
+    username = flask.request.form.get('username')
+    password = flask.request.form.get('password')
     user = db.users.find(username)
-    if not user or not check_password_hash(user.password, password):
+    if not user or not check_password_hash(user.get('password'), password):
         return api_util.jsonify({ 'error': 'Username or password is wrong.' })
 
     return flask.redirect('/')

@@ -22,6 +22,7 @@ _ROW_SCHEMA = {
     'username': RequiredProperty(),
     'password': '',
     'enabled': False,
+    'role': '',
 
     # Unix timestamp in seconds
     'created_at': 0,
