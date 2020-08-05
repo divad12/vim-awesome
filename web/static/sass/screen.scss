@@ -1466,7 +1466,7 @@ $long-desc-bg: #FBFBFB;
 ////////////////////////////////////////////////////////////////////////////////
 // Submit plugin page
 
-.submit-page {
+.submit-page, .login-page {
   $input-height: 40px;
   $input-width: 410px;
 
@@ -1491,7 +1491,7 @@ $long-desc-bg: #FBFBFB;
     height: $input-height;
   }
 
-  input[type="text"] {
+  input[type="text"], input[type="password"] {
     border-radius: 0;
     border: none;
     box-shadow: none;

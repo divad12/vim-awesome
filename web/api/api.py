@@ -6,6 +6,7 @@ import flask
 from flask import request
 from web.cache import cache
 import rethinkdb as r
+from werkzeug.security import generate_password_hash, check_password_hash
 
 import web.api.api_util as api_util
 import db
@@ -213,6 +214,17 @@ def submit_plugin():
     util.log_to_gitter("Someone just submitted a plugin!\n%s" % plugin_markdown)
 
     return flask.redirect('/thanks-for-submitting')
+
+
+@api.route('/login', methods=['POST'])
+def submit_login():
+    username = flask.request.get('username')
+    password = flask.request.get('password')
+    user = db.users.find(username)
+    if not user or not check_password_hash(user.password, password):
+        return api_util.jsonify({ 'error': 'Username or password is wrong.' })
+
+    return flask.redirect('/')
 
 
 @cache.cached(timeout=60 * 60 * 26, key_prefix='search_index')

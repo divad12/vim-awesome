@@ -24,7 +24,7 @@ echo "Starting compass watch"
 bundle exec compass watch --config conf/compass.rb &
 
 echo "Starting webpack"
-NODE_ENV=development webpack --config conf/webpack.config.js --watch &
+npm run watch &
 
 echo "Starting rethinkdb"
 [ -d db/rethinkdb_data ] || rethinkdb create -d db/rethinkdb_data
