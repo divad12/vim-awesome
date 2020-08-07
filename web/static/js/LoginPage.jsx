@@ -2,12 +2,15 @@
 
 var _ = require("lodash");
 var React = require("react");
+var http = require('./utils').http;
+var browserHistory = require("react-router").browserHistory;
 
 var LoginPage = React.createClass({
   getInitialState: function() {
     return {
       username: '',
       password: '',
+      error: '',
       submitting: false
     };
   },
@@ -36,18 +39,30 @@ var LoginPage = React.createClass({
   },
 
   onSubmit: function(e) {
-    this.setState({submitting: true});
+    e.preventDefault();
+    this.setState({submitting: true, error: '' });
 
     if (!this.formIsValid()) {
-        e.preventDefault();
+      return this.setState({ submitting: false, error: 'Form is not valid' });
     }
+
+    return http.post('/api/login', {
+      username: this.state.username,
+      password: this.state.password
+    }).then(function () {
+      browserHistory.push('/');
+    }).catch(function(err) {
+      return this.setState({ error: err.error });
+    }.bind(this));
   },
 
   render: function() {
     var submitting = this.state.submitting;
+    var err = this.state.error;
     return (
       <div className="login-page">
         <h1>Login</h1>
+        {err && <div className="error-msg tac">{err}</div>}
         <form className="form-horizontal" action="/api/login" method="POST" onSubmit={this.onSubmit} >
           <div className="control-group">
             <label className="control-label" htmlFor="name-input">Username</label>

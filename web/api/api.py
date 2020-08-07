@@ -222,9 +222,13 @@ def submit_login():
     password = flask.request.form.get('password')
     user = db.users.find(username)
     if not user or not check_password_hash(user.get('password'), password):
-        return api_util.jsonify({ 'error': 'Username or password is wrong.' })
+        return api_util.jsonify(
+            { 'error': 'Username or password is wrong.' }
+        ), 400
 
-    return flask.redirect('/')
+    return api_util.jsonify({
+        'user': username
+    })
 
 
 @cache.cached(timeout=60 * 60 * 26, key_prefix='search_index')
