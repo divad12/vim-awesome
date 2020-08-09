@@ -3,7 +3,6 @@
 var _ = require("lodash");
 var React = require("react");
 var utils = require('./utils');
-var browserHistory = require("react-router").browserHistory;
 
 var LoginPage = React.createClass({
   getInitialState: function() {

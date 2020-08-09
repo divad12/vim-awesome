@@ -26,6 +26,8 @@ require("../lib/js/bootstrap-dropdown.js");
 var AboutPage = require("./AboutPage.jsx");
 var Category = require("./Category.jsx");
 var LoginPage = require("./LoginPage.jsx");
+var SubmittedPluginsPage = require("./SubmittedPluginsPage.jsx");
+var SubmittedPluginPage = require("./SubmittedPluginPage.jsx");
 var Install = require("./Install.jsx");
 var Markdown = require("./Markdown.jsx");
 var NotFound = require("./NotFound.jsx");
@@ -573,6 +575,8 @@ render(
       <Route path="submit" component={SubmitPage} />
       <Route path="thanks-for-submitting" component={ThanksForSubmittingPage} />
       <Route path="login" component={LoginPage} />
+      <Route path="submitted-plugins" component={SubmittedPluginsPage} />
+      <Route path="submitted-plugins/:id" component={SubmittedPluginPage} />
       <Route path="about" component={AboutPage} />
       <Route path="*" component={NotFound} />
     </Route>

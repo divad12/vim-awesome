@@ -20,3 +20,9 @@ def insert(plugin_data):
         plugin_data['submitted_at'] = int(time.time())
 
     r.table('submitted_plugins').insert(plugin_data).run(r_conn())
+
+def get_list():
+    return list(r.table('submitted_plugins').run(r_conn()))
+
+def get_by_id(id):
+    return r.table('submitted_plugins').get(id).run(r_conn())

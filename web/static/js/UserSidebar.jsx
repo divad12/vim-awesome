@@ -43,7 +43,7 @@ var UserSidebar = React.createClass({
     return (
       <div className="user-sidebar">
         <p><strong>Hi, {this.state.user.username}</strong></p>
-        <a href="/review-plugins" className="user-sidebar-link">
+        <a href="/submitted-plugins" className="user-sidebar-link">
           Review plugins
         </a>
         <a href="#" onClick={this.logout} className="user-sidebar-link">

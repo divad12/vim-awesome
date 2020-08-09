@@ -245,6 +245,22 @@ def submit_login():
 def session():
     return api_util.jsonify(get_jwt_claims())
 
+@api.route('/submitted-plugins', methods=['GET'])
+@jwt_required
+def get_submitted_plugins():
+    list = db.submitted_plugins.get_list()
+    return api_util.jsonify({
+        'list': list
+    })
+
+@api.route('/submitted-plugins/<id>', methods=['GET'])
+@jwt_required
+def get_submitted_plugin_by_id(id):
+    plugin = db.submitted_plugins.get_by_id(id)
+    return api_util.jsonify({
+        'plugin': plugin
+    })
+
 @cache.cached(timeout=60 * 60 * 26, key_prefix='search_index')
 def get_search_index_cached():
     return db.plugins.get_search_index()

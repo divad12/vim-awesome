@@ -1638,3 +1638,17 @@ $long-desc-bg: #FBFBFB;
     display: block;
   }
 }
+
+.submitted-plugins-table {
+  width: 95%;
+  td {
+    padding: 2px;
+    border: 1px solid black;
+    text-align: center;
+  }
+}
+
+.submitted-plugin-info {
+  margin: 50px auto 10px auto;
+  width: 80%;
+}
