@@ -2,7 +2,7 @@
 
 var _ = require("lodash");
 var React = require("react");
-var http = require('./utils').http;
+var utils = require('./utils');
 var browserHistory = require("react-router").browserHistory;
 
 var LoginPage = React.createClass({
@@ -46,13 +46,17 @@ var LoginPage = React.createClass({
       return this.setState({ submitting: false, error: 'Form is not valid' });
     }
 
-    return http.post('/api/login', {
+    return utils.http.post('/api/login', {
       username: this.state.username,
       password: this.state.password
-    }).then(function () {
-      browserHistory.push('/');
+    }).then(function (response) {
+      if (response.token) {
+        utils.setUser(response, response.token);
+      }
+      // Use location.href to trigger refresh of whole app (Mostly sidebar)
+      window.location.href = '/';
     }).catch(function(err) {
-      return this.setState({ error: err.error });
+      return this.setState({ error: err.msg });
     }.bind(this));
   },
 

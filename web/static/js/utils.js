@@ -21,7 +21,14 @@ function getQueriesWithPrefix(queryString, prefix) {
 
 var httpCall = function(url, method, data) {
   return new Promise(function (resolve, reject) {
-    $.ajax({
+    var additionalData = {};
+    var token = localStorage.getItem('token');
+    if (token) {
+      additionalData.headers = {
+        'Authorization': 'Bearer ' + token
+      };
+    }
+    $.ajax($.extend({
       dataType: "json",
       method: method,
       url: url,
@@ -30,7 +37,7 @@ var httpCall = function(url, method, data) {
       error: function(data) {
         return reject(data.responseJSON);
       }
-    });
+    }, additionalData));
   });
 };
 
@@ -42,10 +49,43 @@ var post = function (url, data) {
   return httpCall(url, 'POST', data);
 }
 
+var getUser = function() {
+  var token = localStorage.getItem('token');
+
+  if (!token) {
+    return null;
+  }
+
+  var username = localStorage.getItem('username');
+  var role = localStorage.getItem('role');
+  return {
+    token: token,
+    username: username,
+    role: role
+  };
+}
+
+var setUser = function(user, token) {
+  if (token) {
+    localStorage.setItem('token', token);
+  }
+  localStorage.setItem('username', user.username);
+  localStorage.setItem('role', user.role);
+}
+
+var unsetUser = function() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('username');
+  localStorage.removeItem('role');
+};
+
 module.exports = {
   getQueriesWithPrefix: getQueriesWithPrefix,
   http: {
     get: get,
     post: post
-  }
+  },
+  setUser: setUser,
+  getUser: getUser,
+  unsetUser: unsetUser
 }

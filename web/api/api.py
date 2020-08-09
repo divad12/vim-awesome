@@ -1,4 +1,5 @@
 import itertools
+import datetime
 import json
 import re
 
@@ -7,6 +8,9 @@ from flask import request
 from web.cache import cache
 import rethinkdb as r
 from werkzeug.security import check_password_hash
+from flask_jwt_extended import (
+     jwt_required, create_access_token, get_jwt_identity, get_jwt_claims
+)
 
 import web.api.api_util as api_util
 import db
@@ -215,7 +219,6 @@ def submit_plugin():
 
     return flask.redirect('/thanks-for-submitting')
 
-
 @api.route('/login', methods=['POST'])
 def submit_login():
     username = flask.request.form.get('username')
@@ -223,13 +226,24 @@ def submit_login():
     user = db.users.find(username)
     if not user or not check_password_hash(user.get('password'), password):
         return api_util.jsonify(
-            { 'error': 'Username or password is wrong.' }
+            { 'msg': 'Username or password is wrong.' }
         ), 400
 
+    token = create_access_token(
+        identity=username,
+        user_claims={'username': username, 'role': user['role']},
+        expires_delta=datetime.timedelta(days=30)
+    )
     return api_util.jsonify({
-        'user': username
+        'username': username,
+        'role': user['role'],
+        'token': token
     })
 
+@api.route('/session', methods=['GET'])
+@jwt_required
+def session():
+    return api_util.jsonify(get_jwt_claims())
 
 @cache.cached(timeout=60 * 60 * 26, key_prefix='search_index')
 def get_search_index_cached():

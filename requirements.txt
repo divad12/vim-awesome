@@ -13,6 +13,7 @@ configparser==3.5.0b2
 contextlib2==0.5.1        # via raven
 Flask-Cache==0.12
 flask==0.10.1
+flask-jwt-extended==3.24.1
 html5lib==1.0b1
 itsdangerous==0.24        # via flask
 Jinja2==2.8               # via flask

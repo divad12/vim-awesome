@@ -3,6 +3,7 @@ import logging
 import flask
 from web.cache import cache
 from raven.contrib.flask import Sentry
+from flask_jwt_extended import JWTManager
 
 import db
 import web.api.api as api
@@ -10,8 +11,10 @@ import web.api.api as api
 try:
     import secrets
     _SENTRY_DSN = getattr(secrets, 'SENTRY_DSN', None)
+    _JWT_SECRET = getattr(secrets, 'JWT_SECRET', None)
 except ImportError:
     _SENTRY_DSN = None
+    _JWT_SECRET = None
 
 r_conn = db.util.r_conn
 
@@ -19,6 +22,8 @@ app = flask.Flask(__name__)
 app.config.from_envvar('FLASK_CONFIG')
 app.register_blueprint(api.api)
 cache.init_app(app)
+app.config['JWT_SECRET_KEY'] = _JWT_SECRET
+jwt = JWTManager(app)
 # Initialize the Sentry plugin
 Sentry(app, dsn=_SENTRY_DSN)
 

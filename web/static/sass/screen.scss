@@ -1629,3 +1629,12 @@ $long-desc-bg: #FBFBFB;
   text-align: center;
   padding: 20px 10px;
 }
+
+.user-sidebar {
+  margin-top: 10px;
+  padding: 10px;
+
+  .user-sidebar-link {
+    display: block;
+  }
+}

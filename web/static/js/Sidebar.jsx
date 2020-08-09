@@ -6,6 +6,7 @@ var React = require("react");
 var browserHistory = require("react-router").browserHistory;
 
 var SidebarCategory = require("./SidebarCategory.jsx");
+var UserSidebar = require("./UserSidebar.jsx");
 var utils = require("./utils.js");
 var fetchAllCategories = require("./fetchAllCategories.js");
 
@@ -62,6 +63,7 @@ var Sidebar = React.createClass({
           />
         })
       }</ul>
+      <UserSidebar />
       <a href="/submit" className="submit-plugin">
         <i className="icon-plus"></i>Submit plugin
       </a>
