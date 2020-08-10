@@ -53,8 +53,6 @@ def get_plugins_info_from_response(res):
         link = tr[0][0].attrib['href']
 
         vimorg_id = re.search("script_id=(\d+)", link).group(1)
-        print(link)
-        print(vimorg_id)
         name = tr[0][0].text.encode('utf-8')
 
         # TODO(david): Somehow also get a count of how many plugins failed to
