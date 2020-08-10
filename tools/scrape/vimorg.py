@@ -54,7 +54,7 @@ def get_plugins_info_from_response(res):
     for tr in scripts[2:-1]:
         link = tr[0][0].attrib['href']
 
-        vimorg_id = re.search("script_id=(\d+)", link).group(1)
+        vimorg_id = re.search(r"script_id=(\d+)", link).group(1)
 
         # TODO(david): Somehow also get a count of how many plugins failed to
         #     be scraped in total. Maybe return a tuple with error status.
@@ -119,7 +119,7 @@ def get_plugin_info(vimorg_id):
     html = lxml.html.html5parser.document_fromstring(res.text, parser=PARSER)
 
     rating = html.xpath('//td[contains(text(),"Rating")]/b')[0]
-    rating_denom = int(re.search("(\d+)/(\d+)", rating.text).group(2))
+    rating_denom = int(re.search(r"(\d+)/(\d+)", rating.text).group(2))
 
     body_trs = html.xpath(
             '//table[tbody/tr/td[contains(@class,"prompt")]]/*/*')

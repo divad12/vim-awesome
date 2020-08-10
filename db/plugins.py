@@ -269,7 +269,7 @@ def _normalize_name(plugin):
     name = name.split('--', 1)[0]
 
     # Remove any trailing '.zip'
-    name = re.sub('\.zip$', '', name)
+    name = re.sub(r'\.zip$', '', name)
 
     # Remove accents from chars, lowercases, and remove non-ASCII
     name = slugify(name)
