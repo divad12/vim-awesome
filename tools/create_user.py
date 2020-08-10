@@ -7,8 +7,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--username", required=True, nargs="?", type=str)
     parser.add_argument("--password", required=True, nargs="?", type=str)
-    parser.add_argument("--role", required=True, nargs="?", type=str, choices =
-                        ['admin', 'manager'])
+    parser.add_argument("--role", required=True, nargs="?", type=str,
+                        choices=['admin', 'manager'])
 
     args = parser.parse_args()
     db.users.insert({

@@ -2,8 +2,6 @@ import itertools
 import datetime
 import json
 import re
-import urlparse
-import requests
 
 import flask
 from flask import request
@@ -12,7 +10,7 @@ import rethinkdb as r
 from werkzeug.security import check_password_hash
 from tools.scrape import vimorg, github
 from flask_jwt_extended import (
-     jwt_required, create_access_token, get_jwt_identity, get_jwt_claims
+     jwt_required, create_access_token, get_jwt_claims
 )
 
 import web.api.api_util as api_util
@@ -222,6 +220,7 @@ def submit_plugin():
 
     return flask.redirect('/thanks-for-submitting')
 
+
 @api.route('/login', methods=['POST'])
 def submit_login():
     username = flask.request.form.get('username')
@@ -229,7 +228,7 @@ def submit_login():
     user = db.users.find(username)
     if not user or not check_password_hash(user.get('password'), password):
         return api_util.jsonify(
-            { 'msg': 'Username or password is wrong.' }
+            {'msg': 'Username or password is wrong.'}
         ), 400
 
     token = create_access_token(
@@ -243,10 +242,12 @@ def submit_login():
         'token': token
     })
 
+
 @api.route('/session', methods=['GET'])
 @jwt_required
 def session():
     return api_util.jsonify(get_jwt_claims())
+
 
 @api.route('/submitted-plugins', methods=['GET'])
 @jwt_required
@@ -270,6 +271,7 @@ def get_submitted_plugins():
         'results_per_page': RESULTS_PER_PAGE,
     })
 
+
 @api.route('/submitted-plugins/<id>', methods=['GET'])
 @jwt_required
 def get_submitted_plugin_by_id(id):
@@ -278,13 +280,15 @@ def get_submitted_plugin_by_id(id):
         'plugin': plugin
     })
 
+
 @api.route('/submitted-plugins/<id>', methods=['DELETE'])
 @jwt_required
 def discard_submitted_plugin_by_id(id):
-    plugin = db.submitted_plugins.delete(id)
+    db.submitted_plugins.delete(id)
     return api_util.jsonify({
         'msg': 'Deleted.'
     })
+
 
 @api.route('/submitted-plugins/<id>/approve', methods=['POST'])
 @jwt_required
@@ -314,7 +318,7 @@ def approve_submitted_plugin_by_id(id):
 
     if not result:
         return api_util.jsonify({
-            'msg': 'Unable to find any valid information from github or vimorg.'
+            'msg': 'Unable to find any valid information from github or vimorg'
         }), 400
 
     db.plugins.add_scraped_data(result, repo_data, {

@@ -1,11 +1,6 @@
-import difflib
-import random
-import re
-import sys
 import time
 
 import rethinkdb as r
-from slugify import slugify
 
 import db.util
 
@@ -29,11 +24,14 @@ _ROW_SCHEMA = {
     'updated_at': 0
 }
 
+
 def ensure_table():
     db.util.ensure_table('users', primary_key='username')
 
+
 def find(username):
     return r.table('users').get(username).run(r_conn())
+
 
 def insert(user):
     if _username_taken(user.get('username')):
