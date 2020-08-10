@@ -248,9 +248,23 @@ def session():
 @api.route('/submitted-plugins', methods=['GET'])
 @jwt_required
 def get_submitted_plugins():
-    list = db.submitted_plugins.get_list()
+    RESULTS_PER_PAGE = 50
+    page = int(request.args.get('page', 1))
+
+    results = db.submitted_plugins.get_list()
+
+    count = len(results)
+    total_pages = (count + RESULTS_PER_PAGE - 1) / RESULTS_PER_PAGE  # ceil
+
+    results = results[((page - 1) * RESULTS_PER_PAGE):
+            (page * RESULTS_PER_PAGE)]
+
     return api_util.jsonify({
-        'list': list
+        'plugins': results,
+        'current_page': page,
+        'total_pages': total_pages,
+        'total_results': count,
+        'results_per_page': RESULTS_PER_PAGE,
     })
 
 @api.route('/submitted-plugins/<id>', methods=['GET'])
@@ -259,6 +273,14 @@ def get_submitted_plugin_by_id(id):
     plugin = db.submitted_plugins.get_by_id(id)
     return api_util.jsonify({
         'plugin': plugin
+    })
+
+@api.route('/submitted-plugins/<id>', methods=['DELETE'])
+@jwt_required
+def discard_submitted_plugin_by_id(id):
+    plugin = db.submitted_plugins.delete(id)
+    return api_util.jsonify({
+        'msg': 'Deleted.'
     })
 
 @cache.cached(timeout=60 * 60 * 26, key_prefix='search_index')

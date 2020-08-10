@@ -43,11 +43,15 @@ var httpCall = function(url, method, data) {
 
 var get = function (url, data) {
   return httpCall(url, 'GET', data);
-}
+};
 
 var post = function (url, data) {
   return httpCall(url, 'POST', data);
-}
+};
+
+var del = function (url, data) {
+  return httpCall(url, 'DELETE', data);
+};
 
 var getUser = function() {
   var token = localStorage.getItem('token');
@@ -83,7 +87,8 @@ module.exports = {
   getQueriesWithPrefix: getQueriesWithPrefix,
   http: {
     get: get,
-    post: post
+    post: post,
+    delete: del
   },
   setUser: setUser,
   getUser: getUser,

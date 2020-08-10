@@ -1,6 +1,7 @@
 "use strict";
 
 var React = require("react");
+var browserHistory = require("react-router").browserHistory;
 var utils = require('./utils');
 
 var SubmittedPluginPage = React.createClass({
@@ -37,9 +38,17 @@ var SubmittedPluginPage = React.createClass({
 
   remove: function (e) {
     e.preventDefault();
-    if (confirm('Are you sure you want to remove this plugin?')) {
-      alert('Removed!');
+    if (!confirm('Are you sure you want to remove this plugin?')) {
+      return;
     }
+
+    return utils.http.delete('/api/submitted-plugins/' + this.props.params.id)
+      .then(function () {
+        return browserHistory.push('/submitted-plugins');
+      }.bind(this))
+      .catch(function (err) {
+        console.log('ERROR DISCARDING PLUGIN', err);
+      });
   },
 
   render: function() {

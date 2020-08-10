@@ -26,3 +26,6 @@ def get_list():
 
 def get_by_id(id):
     return r.table('submitted_plugins').get(id).run(r_conn())
+
+def delete(id):
+    return r.table('submitted_plugins').get(id).delete().run(r_conn())
