@@ -2,6 +2,7 @@ import datetime
 import logging
 import re
 import sys
+import urlparse
 
 import requests
 import lxml.html
@@ -22,6 +23,56 @@ class HTMLParser(lxml.html.html5parser.HTMLParser):
 
 PARSER = HTMLParser()
 
+def get_all_info_from_url_and_name(vimorg_url, name):
+    vimorg_data = urlparse.urlparse(vimorg_url)
+    query_string = urlparse.parse_qs(vimorg_data.query)
+    if not query_string or 'script_id' not in query_string:
+        return {}
+
+    vimorg_id = query_string['script_id'][0]
+    res = requests.get(
+            'http://www.vim.org/scripts/script_search_results.php?keywords=%s'
+        % name)
+
+    plugins = get_plugins_info_from_response(res)
+    for plugin in plugins:
+        if str(plugin['vimorg_id']) == str(vimorg_id):
+            return plugin
+    return None
+
+def get_plugins_info_from_response(res):
+    html = lxml.html.html5parser.document_fromstring(res.text, parser=PARSER)
+
+    # Since there are no identifying classes or ids, this is the best way to
+    # find the correct table
+    scripts = html.xpath('//table[tbody/tr/th[contains(text(),"Script")]]/*/*')
+
+    plugins = []
+    # the first two rows and the last row aren't scripts
+    for tr in scripts[2:-1]:
+        link = tr[0][0].attrib['href']
+
+        vimorg_id = re.search("script_id=(\d+)", link).group(1)
+        print(link)
+        print(vimorg_id)
+        name = tr[0][0].text.encode('utf-8')
+
+        # TODO(david): Somehow also get a count of how many plugins failed to
+        #     be scraped in total. Maybe return a tuple with error status.
+        # TODO(david): Fix error scraping vimcat (id=4325) (something about
+        #     only unicode and ascii allowed, no null bytes or control chars)
+        # Merge the data we get here with extra data from the details page.
+        plugins.append(dict({
+            "vimorg_url": "http://www.vim.org/scripts/%s" % link,
+            "vimorg_id": vimorg_id,
+            "vimorg_name": tr[0][0].text,
+            "vimorg_type": tr[1].text,
+            "vimorg_rating": int(tr[2].text),
+            "vimorg_downloads": int(tr[3].text),
+            "vimorg_short_desc": tr[4][0].text,
+        }, **get_plugin_info(vimorg_id)))
+
+    return plugins
 
 def scrape_scripts(num):
     """Scrapes and upserts the num most recently created scripts on vim.org."""
@@ -29,19 +80,11 @@ def scrape_scripts(num):
             'http://www.vim.org/scripts/script_search_results.php?show_me=%d' %
                 num)
 
-    html = lxml.html.html5parser.document_fromstring(res.text, parser=PARSER)
+    plugins = get_plugins_info_from_response(res)
 
-    # Since there are no identifying classes or ids, this is the best way to
-    # find the correct table
-    scripts = html.xpath('//table[tbody/tr/th[contains(text(),"Script")]]/*/*')
-
-    # the first two rows and the last row aren't scripts
-    for tr in scripts[2:-1]:
-        link = tr[0][0].attrib['href']
-
-        vimorg_id = re.search("script_id=(\d+)", link).group(1)
-        name = tr[0][0].text.encode('utf-8')
-
+    for plugin in plugins:
+        name = plugin['name'].encode('utf-8')
+        vimorg_id = plugin['vimorg_id']
         # Print w/o newline.
         print "    scraping %s (vimorg_id=%s) ..." % (name, vimorg_id),
         sys.stdout.flush()
@@ -51,17 +94,6 @@ def scrape_scripts(num):
         # TODO(david): Fix error scraping vimcat (id=4325) (something about
         #     only unicode and ascii allowed, no null bytes or control chars)
         try:
-            # Merge the data we get here with extra data from the details page.
-            plugin = dict({
-                "vimorg_url": "http://www.vim.org/scripts/%s" % link,
-                "vimorg_id": vimorg_id,
-                "vimorg_name": tr[0][0].text,
-                "vimorg_type": tr[1].text,
-                "vimorg_rating": int(tr[2].text),
-                "vimorg_downloads": int(tr[3].text),
-                "vimorg_short_desc": tr[4][0].text,
-            }, **get_plugin_info(vimorg_id))
-
             query = r.table('submitted_plugins').get_all(vimorg_id,
                     index='vimorg_id').filter(
                             r.row['rejected'] != True, default=True)  # NOQA
@@ -72,7 +104,6 @@ def scrape_scripts(num):
             logging.exception(
                     '\nError scraping %s (vimorg_id=%s) from vim.org' %
                     (name, vimorg_id))
-
 
 def get_plugin_info(vimorg_id):
     """Gets some more detailed information about a vim.org script

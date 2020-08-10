@@ -65,6 +65,8 @@ var SubmittedPluginsPage = React.createClass({
             <tr>
               <th>Name</th>
               <th>Author</th>
+              <th>Vimorg</th>
+              <th>Github</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -74,6 +76,8 @@ var SubmittedPluginsPage = React.createClass({
               <tr key={item.id}>
                 <td>{item.name}</td>
                 <td>{item.author}</td>
+                <td>{item['vimorg-link'] && <a href={item['vimorg-link']} target="_blank">Link</a> || '-'}</td>
+                <td>{item['github-link'] && <a href={item['github-link']} target="_blank">Link</a> || '-'}</td>
                 <td>
                   <a href={'/submitted-plugins/' + item.id}>Details</a>
                   {' '}<button onClick={this.discardPlugin(item)}><i className="icon-trash"></i></button>

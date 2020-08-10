@@ -22,10 +22,16 @@ def insert(plugin_data):
     r.table('submitted_plugins').insert(plugin_data).run(r_conn())
 
 def get_list():
-    return list(r.table('submitted_plugins').run(r_conn()))
+    return list(r.table('submitted_plugins')
+                .order_by(index=r.desc('submitted_at'))
+                .filter(r.row['approved'] != True, default=True)
+                .run(r_conn()))
 
 def get_by_id(id):
     return r.table('submitted_plugins').get(id).run(r_conn())
 
 def delete(id):
     return r.table('submitted_plugins').get(id).delete().run(r_conn())
+
+def approved(id):
+    return r.table('submitted_plugins').get(id).update({'approved': True}).run(r_conn())

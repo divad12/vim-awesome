@@ -2,12 +2,15 @@ import itertools
 import datetime
 import json
 import re
+import urlparse
+import requests
 
 import flask
 from flask import request
 from web.cache import cache
 import rethinkdb as r
 from werkzeug.security import check_password_hash
+from tools.scrape import vimorg, github
 from flask_jwt_extended import (
      jwt_required, create_access_token, get_jwt_identity, get_jwt_claims
 )
@@ -282,6 +285,49 @@ def discard_submitted_plugin_by_id(id):
     return api_util.jsonify({
         'msg': 'Deleted.'
     })
+
+@api.route('/submitted-plugins/<id>/approve', methods=['POST'])
+@jwt_required
+def approve_submitted_plugin_by_id(id):
+    plugin = db.submitted_plugins.get_by_id(id)
+    if not plugin.get('github-link') and not plugin.get('vimorg-link'):
+        return api_util.jsonify({
+            'msg': 'No valid github or vimorg link'
+        }), 400
+
+    result = {}
+    repo_data = {}
+
+    if plugin.get('github-link'):
+        github_data, repo = github.get_all_info_from_url(plugin['github-link'])
+        repo_data = repo
+        if github_data:
+            result = dict(result, **github_data)
+
+    if plugin.get('vimorg-link'):
+        vimorg_data = vimorg.get_all_info_from_url_and_name(
+            plugin['vimorg-link'],
+            plugin['name']
+        )
+        if vimorg_data:
+            result = dict(result, **vimorg_data)
+
+    if not result:
+        return api_util.jsonify({
+            'msg': 'Unable to find any valid information from github or vimorg.'
+        }), 400
+
+    db.plugins.add_scraped_data(result, repo_data, {
+        'category': plugin['category'],
+        'tags': plugin['tags']
+    })
+    db.submitted_plugins.approved(id)
+
+    return api_util.jsonify({
+        'msg': 'Approved.',
+        'name': plugin['name']
+    })
+
 
 @cache.cached(timeout=60 * 60 * 26, key_prefix='search_index')
 def get_search_index_cached():

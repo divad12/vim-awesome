@@ -52,6 +52,17 @@ class ApiRateLimitExceededError(Exception):
     def __str__(self):
         return repr(self.headers)
 
+def get_all_info_from_url(github_url):
+    info = re.compile('^https://github.com/([^/]+)/([^/]+)')
+    info = info.findall(github_url)
+    if not info:
+        return {}
+    [(owner, repo)] = info
+    res, repo_data = get_api_page('repos/%s/%s' % (owner, repo))
+    if res.status_code != 404:
+        return get_plugin_data(owner, repo, repo_data), repo_data
+
+    return {}
 
 def get_api_page(url_or_path, query_params=None, page=1, per_page=100):
     """Get a page from GitHub's v3 API.
