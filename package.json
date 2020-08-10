@@ -44,6 +44,7 @@
       "node_modules/react-dom/",
       "node_modules/react/"
     ],
+    "setupFiles": ["<rootDir>/localStorage.mock.js"],
     "rootDir": "web/static/js"
   }
 }
