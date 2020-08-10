@@ -20,7 +20,7 @@ function getQueriesWithPrefix(queryString, prefix) {
 }
 
 var httpCall = function(url, method, data) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) { // eslint-disable-line no-undef
     var additionalData = {};
     var token = localStorage.getItem('token');
     if (token) {
