@@ -119,7 +119,7 @@ var SubmittedPluginPage = React.createClass({
             )
           })}
         </div>
-        }
+         || ''}
       </div>
     );
   }

@@ -321,11 +321,16 @@ def approve_submitted_plugin_by_id(id):
             'msg': 'Unable to find any valid information from github or vimorg'
         }), 400
 
+    jwt_claims = get_jwt_claims()
+    result['approved_by'] = jwt_claims['username']
+
     db.plugins.add_scraped_data(result, repo_data, {
         'category': plugin['category'],
         'tags': plugin['tags']
     })
     db.submitted_plugins.approved(id)
+    # Clear cache so newly added package appears in search
+    cache.clear()
 
     return api_util.jsonify({
         'msg': 'Approved.',
