@@ -283,10 +283,10 @@ def get_submitted_plugin_by_id(id):
 
 @api.route('/submitted-plugins/<id>', methods=['DELETE'])
 @jwt_required
-def discard_submitted_plugin_by_id(id):
-    db.submitted_plugins.delete(id)
+def reject_submitted_plugin_by_id(id):
+    db.submitted_plugins.reject(id)
     return api_util.jsonify({
-        'msg': 'Deleted.'
+        'msg': 'Rejected.'
     })
 
 
@@ -328,7 +328,7 @@ def approve_submitted_plugin_by_id(id):
         'category': plugin['category'],
         'tags': plugin['tags']
     })
-    db.submitted_plugins.approved(id)
+    db.submitted_plugins.approve_and_enable_scraping(id, result)
     # Clear cache so newly added package appears in search
     cache.clear()
 

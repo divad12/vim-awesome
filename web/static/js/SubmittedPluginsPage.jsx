@@ -42,10 +42,10 @@ var SubmittedPluginsPage = React.createClass({
     return this.getResults(page);
   },
 
-  discardPlugin: function (plugin) {
+  rejectPlugin: function (plugin) {
     return function (e) {
       e.preventDefault();
-      if (!confirm('Are you sure you want to discard this plugin?')) {
+      if (!confirm('Are you sure you want to reject this plugin?')) {
         return;
       }
 
@@ -54,7 +54,7 @@ var SubmittedPluginsPage = React.createClass({
           return this.getResults(this.state.currentPage);
         }.bind(this))
         .catch(function (err) {
-          console.log('ERROR DISCARDING PLUGIN', err);
+          console.log('ERROR REJECTING PLUGIN', err);
         });
     }.bind(this);
   },
@@ -81,7 +81,7 @@ var SubmittedPluginsPage = React.createClass({
                 <td>{item['github-link'] && <a href={item['github-link']} target="_blank">Link</a> || '-'}</td>
                 <td>
                   <a href={'/submitted-plugins/' + item.id}>Details</a>
-                  {' '}<button onClick={this.discardPlugin(item)}><i className="icon-trash"></i></button>
+                  {' '}<button onClick={this.rejectPlugin(item)}><i className="icon-trash"></i></button>
                 </td>
               </tr>
             )

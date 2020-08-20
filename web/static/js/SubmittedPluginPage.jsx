@@ -70,9 +70,9 @@ var SubmittedPluginPage = React.createClass({
       }.bind(this));
   },
 
-  remove: function (e) {
+  reject: function (e) {
     e.preventDefault();
-    if (!confirm('Are you sure you want to remove this plugin?')) {
+    if (!confirm('Are you sure you want to reject this plugin?')) {
       return;
     }
 
@@ -82,7 +82,7 @@ var SubmittedPluginPage = React.createClass({
       }.bind(this))
       .catch(function (err) {
         this.setState({ error: err.msg || 'Uknown error, check console' });
-        console.log('ERROR DISCARDING PLUGIN', err);
+        console.log('ERROR REJECTING PLUGIN', err);
       }.bind(this));
   },
 
@@ -105,7 +105,7 @@ var SubmittedPluginPage = React.createClass({
 
         <div>
           <button onClick={this.approve}>Approve</button>{' '}
-          <button onClick={this.remove}>Remove</button>
+          <button onClick={this.reject}>Reject</button>
         </div>
 
         {this.state.similarPlugins.plugins.length &&

@@ -26,6 +26,7 @@ def get_list():
     return list(r.table('submitted_plugins')
                 .order_by(index=r.desc('submitted_at'))
                 .filter(r.row['approved'] != True, default=True)  # NOQA
+                .filter(r.row['rejected'] != True, default=True)  # NOQA
                 .run(r_conn()))
 
 
@@ -33,11 +34,28 @@ def get_by_id(id):
     return r.table('submitted_plugins').get(id).run(r_conn())
 
 
-def delete(id):
-    return r.table('submitted_plugins').get(id).delete().run(r_conn())
-
-
-def approved(id):
+def reject(id):
     return r.table('submitted_plugins').get(id).update({
-        'approved': True
+        'rejected': True
     }).run(r_conn())
+
+
+def approve_and_enable_scraping(id, plugin_info):
+    update_data = {
+        'approved': True
+    }
+    if plugin_info['vimorg_id']:
+        update_data['vimorg_id'] = plugin_info['vimorg_id']
+
+    r.table('submitted_plugins').get(id).update(update_data).run(r_conn())
+
+    plugin = get_by_id(id)
+
+    if plugin_info['github_owner'] and plugin_info['github_repo_name']:
+        db.github_repos.PluginGithubRepos.upsert_with_owner_repo({
+            'owner': plugin_info['github_owner'],
+            'repo_name': plugin_info['github_repo_name'],
+            'from_submission': plugin
+        })
+
+    return plugin

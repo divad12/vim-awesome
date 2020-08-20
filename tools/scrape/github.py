@@ -20,6 +20,7 @@ import db.util
 import util
 
 r_conn = db.util.r_conn
+_GITHUB_PARSE_INFO_RGX = re.compile('^https://github.com/([^/]+)/([^/]+)')
 
 try:
     import secrets
@@ -54,8 +55,7 @@ class ApiRateLimitExceededError(Exception):
 
 
 def get_all_info_from_url(github_url):
-    info = re.compile('^https://github.com/([^/]+)/([^/]+)')
-    info = info.findall(github_url)
+    info = _GITHUB_PARSE_INFO_RGX.findall(github_url)
     if not info:
         return {}
     [(owner, repo)] = info
