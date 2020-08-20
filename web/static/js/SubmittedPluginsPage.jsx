@@ -68,6 +68,7 @@ var SubmittedPluginsPage = React.createClass({
               <th>Author</th>
               <th>Vimorg</th>
               <th>Github</th>
+              <th>Submitted at</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -75,10 +76,11 @@ var SubmittedPluginsPage = React.createClass({
           {this.state.plugins.map(function(item) {
             return (
               <tr key={item.id}>
-                <td>{item.name}</td>
+                <td><a href={'/submitted-plugins/' + item.id}>{item.name}</a></td>
                 <td>{item.author}</td>
-                <td>{item['vimorg-link'] && <a href={item['vimorg-link']} target="_blank">Link</a> || '-'}</td>
-                <td>{item['github-link'] && <a href={item['github-link']} target="_blank">Link</a> || '-'}</td>
+                <td>{item['vimorg-link'] && <a href={item['vimorg-link']} target="_blank">Vim.org</a> || '-'}</td>
+                <td>{item['github-link'] && <a href={item['github-link']} target="_blank">Github</a> || '-'}</td>
+                <td>{(new Date(item.submitted_at * 1000)).toLocaleDateString()}</td>
                 <td>
                   <a href={'/submitted-plugins/' + item.id}>Details</a>
                   {' '}<button onClick={this.rejectPlugin(item)}><i className="icon-trash"></i></button>
