@@ -27,6 +27,7 @@ def get_list():
                 .order_by(index=r.desc('submitted_at'))
                 .filter(r.row['approved'] != True, default=True)  # NOQA
                 .filter(r.row['rejected'] != True, default=True)  # NOQA
+                .filter(r.row['github-link'] != '', default=True) # NOQA
                 .run(r_conn()))
 
 
