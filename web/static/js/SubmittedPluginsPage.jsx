@@ -82,8 +82,8 @@ var SubmittedPluginsPage = React.createClass({
                 <td>{item['github-link'] && <a href={item['github-link']} target="_blank">Github</a> || '-'}</td>
                 <td>{(new Date(item.submitted_at * 1000)).toLocaleDateString()}</td>
                 <td>
-                  <a href={'/submitted-plugins/' + item.id}>Details</a>
-                  {' '}<button onClick={this.rejectPlugin(item)}><i className="icon-trash"></i></button>
+                  <a href={'/submitted-plugins/' + item.id} className="details-icon"><i className="icon-info-sign"></i></a>
+                  <button onClick={this.rejectPlugin(item)}><i className="icon-trash"></i></button>
                 </td>
               </tr>
             )

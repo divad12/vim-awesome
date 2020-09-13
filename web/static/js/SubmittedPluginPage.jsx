@@ -61,8 +61,8 @@ var SubmittedPluginPage = React.createClass({
     }
 
     return utils.http.post('/api/submitted-plugins/' + this.props.params.id + '/approve')
-      .then(function (res) {
-        browserHistory.push('/?q=' + res.name)
+      .then(function () {
+        browserHistory.push('/submitted-plugins')
       }.bind(this))
       .catch(function (err) {
         this.setState({ error: err.msg || 'Uknown error, check console' });

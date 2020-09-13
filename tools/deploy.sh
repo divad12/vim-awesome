@@ -19,7 +19,7 @@ NEW_CLONE=repos/vim-awesome-`date +%s`
 
 # Do the clone
 echo "Cloning vim-awesome"
-git clone git@github.com:vim-awesome/vim-awesome.git $NEW_CLONE > /dev/null
+git clone https://github.com/vim-awesome/vim-awesome.git $NEW_CLONE > /dev/null
 
 # TODO(david): Use virtualenv so we don't have to sudo pip install
 echo "Installing Python requirements"
