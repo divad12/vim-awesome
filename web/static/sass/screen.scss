@@ -114,7 +114,7 @@ code {
   top: 0;
 
   @media #{$large-screen} {
-    overflow-y: scroll;
+    overflow-y: auto;
   }
 
   @media #{$not-large-screen} {
