@@ -69,7 +69,7 @@ var PathogenInstructions = React.createClass({
   render: function() {
     return <div>
       <p>Run the following in a terminal:</p>
-      <pre>cd ~/.vim/bundle<br/>git clone {this.props.github_url}
+      <pre>git clone {this.props.github_url} \<br/>    ~/.vim/bundle/{this.props.github_repo_name}
       </pre>
       {/* Hack to get triple-click in Chrome to not over-select. */}
       <div>{'\u00a0' /* &nbsp; */}</div>
@@ -202,7 +202,8 @@ var Install = React.createClass({
         {this.state.tabActive === "vimPlug" &&
             <VimPlugInstructions github_url={this.props.github_url} />}
         {this.state.tabActive === "pathogen" &&
-            <PathogenInstructions github_url={this.props.github_url} />}
+            <PathogenInstructions github_url={this.props.github_url}
+                github_repo_name={this.props.github_repo_name}/>}
       </div>
     </div>;
   }

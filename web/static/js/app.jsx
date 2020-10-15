@@ -436,7 +436,8 @@ var PluginPage = React.createClass({
 
       <div className="row-fluid">
         <div className="span9">
-          <Install github_url={this.state.github_url} />
+          <Install github_url={this.state.github_url}
+              github_repo_name={this.state.github_repo_name} />
         </div>
         <div className="span3">
           <div className="row-fluid">
