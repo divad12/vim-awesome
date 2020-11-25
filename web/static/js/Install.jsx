@@ -77,6 +77,24 @@ var PathogenInstructions = React.createClass({
   }
 });
 
+// Instructions for installing a plugin with Dein.
+var DeinInstructions = React.createClass({
+  render: function() {
+    var urlPath = (this.props.github_url || "").replace(
+        /^https?:\/\/github.com\//, "");
+    var bundleUri = urlPath.replace(/^vim-scripts\//, "");
+
+    return <div>
+      <p>Place this in your <code>.vimrc:</code></p>
+      <pre>call dein#add('{bundleUri}')</pre>
+      <p>&hellip; then run the following in Vim:</p>
+      <pre>:source %<br/>:call dein#install()</pre>
+      {/* Hack to get triple-click in Chrome to not over-select. */}
+      <div>{'\u00a0' /* &nbsp; */}</div>
+    </div>;
+  }
+});
+
 // Help text explaining what Vundle is and linking to more details.
 var VundleTabPopover = React.createClass({
   render: function() {
@@ -131,6 +149,20 @@ var PathogenTabPopover = React.createClass({
   }
 });
 
+// Help text explaining what Dein is and linking to more details.
+var DeinTabPopover = React.createClass({
+  render: function() {
+    return <div>
+      New fast, asynchronous and simple Vim/Neovim plugin manager written by
+      NeoBundle's author.
+      <br/><br/>See{' '}
+      <a href="https://github.com/Shougo/dein.vim" target="_blank">
+        <i className="icon-github" /> Shougo/dein.vim
+      </a>
+    </div>;
+  }
+});
+
 var InstallTab = React.createClass({
   // TODO(captbaritone): Keep popover visible when moving mouse into the
   // popover: https://github.com/react-bootstrap/react-bootstrap/issues/1622
@@ -163,46 +195,44 @@ var Install = React.createClass({
     }
   },
 
+  getTab: function(key, label, popover) {
+    return <InstallTab onTabClick={this.onTabClick.bind(this, key)}
+      active={this.state.tabActive === key}
+      popover={popover}
+      popoverId={key + "Pop"}
+      dispalyName={label}
+    />;
+  },
+
+  getInstructions: function() {
+    switch (this.state.tabActive) {
+      case "vundle":
+        return <VundleInstructions github_url={this.props.github_url} />;
+      case "neoBundle":
+        return <NeoBundleInstructions github_url={this.props.github_url} />;
+      case "vimPlug":
+        return <VimPlugInstructions github_url={this.props.github_url} />;
+      case "pathogen":
+        return <PathogenInstructions github_url={this.props.github_url} />;
+      case "dein":
+        return <DeinInstructions github_url={this.props.github_url} />;
+    }
+  },
+
   render: function() {
     return <div className="install row-fluid">
       <div className="tabs-column">
         <h3 className="install-label">Install from</h3>
         <ul className="install-tabs">
-          <InstallTab onTabClick={this.onTabClick.bind(this, "vundle")}
-            active={this.state.tabActive === "vundle"}
-            popover={<VundleTabPopover />}
-            popoverId="vundlePop"
-            dispalyName="Vundle"
-          />
-          <InstallTab onTabClick={this.onTabClick.bind(this, "neoBundle")}
-            active={this.state.tabActive === "neoBundle"}
-            popover={<NeoBundleTabPopover />}
-            popoverId="neoBundlePop"
-            dispalyName="NeoBundle"
-          />
-          <InstallTab onTabClick={this.onTabClick.bind(this, "vimPlug")}
-            active={this.state.tabActive === "vimPlug"}
-            popover={<VimPlugTabPopover />}
-            popoverId="vimPlugPop"
-            dispalyName="VimPlug"
-          />
-          <InstallTab onTabClick={this.onTabClick.bind(this, "pathogen")}
-            active={this.state.tabActive === "pathogen"}
-            popover={<PathogenTabPopover />}
-            popoverId="pathogenPop"
-            dispalyName="Pathogen"
-          />
+          {this.getTab("vundle", "Vundle", <VundleTabPopover />)}
+          {this.getTab("neoBundle", "NeoBundle", <NeoBundleTabPopover />)}
+          {this.getTab("vimPlug", "VimPlug", <VimPlugTabPopover />)}
+          {this.getTab("pathogen", "Pathogen", <PathogenTabPopover />)}
+          {this.getTab("dein", "Dein", <DeinTabPopover />)}
         </ul>
       </div>
       <div className="content-column">
-        {this.state.tabActive === "vundle" &&
-            <VundleInstructions github_url={this.props.github_url} />}
-        {this.state.tabActive === "neoBundle" &&
-            <NeoBundleInstructions github_url={this.props.github_url} />}
-        {this.state.tabActive === "vimPlug" &&
-            <VimPlugInstructions github_url={this.props.github_url} />}
-        {this.state.tabActive === "pathogen" &&
-            <PathogenInstructions github_url={this.props.github_url} />}
+        {this.getInstructions()}
       </div>
     </div>;
   }
