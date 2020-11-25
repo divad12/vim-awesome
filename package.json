@@ -11,7 +11,7 @@
     "enzyme": "^2.3.0",
     "eslint": "^3.19.0",
     "eslint-plugin-react": "^5.1.1",
-    "jest-cli": "^19.0.2",
+    "jest-cli": "^20.0.4",
     "react-test-renderer": "^15.5.4"
   },
   "dependencies": {
