@@ -1,6 +1,6 @@
 # Vim Awesome
 
-Vim Awesome wants to be a comprehensive, accurate, and up-to-date directory of
+This is the source for [vimawesome.com](https://vimawesome.com/), a comprehensive, accurate, and up-to-date directory of
 Vim plugins.
 
 Many recent Vim plugins are announced on Hacker News or specialized boards, and
